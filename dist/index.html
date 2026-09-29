@@ -390,10 +390,15 @@
       const first = mixedChoices(phrases[0][1], meanings, 1);
       const second = mixedChoices(phrases[1][1], meanings.slice().reverse(), 2);
       const reverse = mixedChoices(phrases[3][0], romans, 1);
+      const arrangePhrase = [phrases[2], phrases[3], phrases[1], phrases[0]].find(phrase => phrase[0].trim().split(/\s+/).length > 1);
+      const thirdChoice = mixedChoices(phrases[2][1], meanings, 0);
+      const thirdExercise = arrangePhrase
+        ? { type: 'arrange', prompt: `Build: “${arrangePhrase[1]}”`, words: arrangePhrase[0].trim().split(/\s+/).reverse(), answerText: arrangePhrase[0] }
+        : { type: 'choice', prompt: 'Choose the correct meaning', phrase: phrases[2][0], speech: phrases[2][2], hint: 'Pick the closest English meaning', ...thirdChoice };
       return { key, title, icon, completion: `You can now use ${title.toLowerCase()} in a real conversation.`, phrases, questions: [
         { type: 'choice', prompt: 'What does this mean?', phrase: phrases[0][0], speech: phrases[0][2], hint: phrases[0][1], ...first },
         { type: 'choice', prompt: 'Listen and choose the meaning', phrase: phrases[1][0], speech: phrases[1][2], hint: 'A useful everyday phrase', ...second },
-        { type: 'arrange', prompt: `Build: “${phrases[2][1]}”`, words: phrases[2][0].split(' ').reverse(), answerText: phrases[2][0] },
+        thirdExercise,
         { type: 'choice', prompt: `How do you say “${phrases[3][1]}”?`, phrase: phrases[3][1], speech: phrases[3][2], hint: 'Choose the Kannada phrase', ...reverse },
         { type: 'speak', prompt: 'Listen, then say it out loud', phrase: phrases[0][0], speech: phrases[0][2], hint: phrases[0][1] }
       ]};
