@@ -175,12 +175,9 @@
     .word-pool { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
     .word { border: 2px solid var(--line); border-bottom-width: 5px; border-radius: 13px; background: white; padding: 11px 16px; font-weight: 800; cursor: pointer; }
     .word.used { opacity: .25; pointer-events: none; }
-    .record-card { text-align: center; border: 2px solid var(--line); border-radius: 24px; padding: 28px 20px; }
-    .record-orb { border: 0; width: 78px; height: 78px; border-radius: 50%; background: var(--purple); color: white; font-size: 1.8rem; box-shadow: 0 7px 0 var(--purple-dark); cursor: pointer; }
-    .record-orb.recording { background: var(--red); box-shadow: 0 7px 0 #ba3541; animation: pulse 1.1s infinite; }
-    .record-status { margin: 16px 0 0; color: var(--muted); }
-    audio { margin-top: 16px; width: min(100%, 340px); }
-    @keyframes pulse { 50% { transform: scale(1.08); } }
+    .speak-card { text-align: center; border: 2px solid var(--line); border-radius: 24px; padding: 28px 20px; background: var(--paper); }
+    .speak-mark { width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 23px; background: var(--purple-soft); color: var(--purple-dark); display: grid; place-items: center; font-size: 2rem; }
+    .speak-card p { margin: 0 0 18px; color: var(--muted); }
 
     .answer-bar { position: fixed; bottom: 0; left: 0; right: 0; border-top: 2px solid var(--line); background: rgba(255,255,255,.97); padding: 18px max(16px, calc((100vw - 760px) / 2)); z-index: 30; }
     .answer-inner { display: flex; justify-content: flex-end; align-items: center; gap: 16px; }
@@ -398,7 +395,7 @@
         { type: 'choice', prompt: 'Listen and choose the meaning', phrase: phrases[1][0], speech: phrases[1][2], hint: 'A useful everyday phrase', ...second },
         { type: 'arrange', prompt: `Build: “${phrases[2][1]}”`, words: phrases[2][0].split(' ').reverse(), answerText: phrases[2][0] },
         { type: 'choice', prompt: `How do you say “${phrases[3][1]}”?`, phrase: phrases[3][1], speech: phrases[3][2], hint: 'Choose the Kannada phrase', ...reverse },
-        { type: 'record', prompt: 'Say the phrase out loud', phrase: phrases[0][0], speech: phrases[0][2], hint: phrases[0][1] }
+        { type: 'speak', prompt: 'Listen, then say it out loud', phrase: phrases[0][0], speech: phrases[0][2], hint: phrases[0][1] }
       ]};
     }
 
@@ -414,7 +411,7 @@
       lessons[milestone.checkpointKey] = {
         key: milestone.checkpointKey, title: milestoneIndex === 5 ? 'Final checkpoint' : `Checkpoint ${milestoneIndex + 1}`, icon: '🏆',
         completion: milestoneIndex === 5 ? 'You finished the 30-day spoken Kannada path!' : `Milestone ${milestoneIndex + 1} complete — keep going!`,
-        questions: [...pool.slice(0, 6), { type: 'record', prompt: 'Finish by saying this aloud', phrase: finalPhrase[0], speech: finalPhrase[2], hint: finalPhrase[1] }]
+        questions: [...pool.slice(0, 6), { type: 'speak', prompt: 'Finish by saying this aloud', phrase: finalPhrase[0], speech: finalPhrase[2], hint: finalPhrase[1] }]
       };
     });
     const lessonOrder = curriculum.flatMap(m => [...m.lessonKeys, m.checkpointKey]);
@@ -440,9 +437,7 @@
     let selected = null;
     let checked = false;
     let arranged = [];
-    let mediaRecorder;
-    let audioChunks = [];
-    let hasRecorded = false;
+    let hasPractised = false;
 
     const $ = (id) => document.getElementById(id);
     const dashboard = $('dashboard');
@@ -509,7 +504,7 @@
       $('startPractice').disabled = !unlocked;
       const completedLessonKeys = saved.completedLessons.filter(key => !key.startsWith('checkpoint_'));
       $('practiceCopy').textContent = unlocked ? `Review phrases from ${completedLessonKeys.length} completed lessons.` : 'Finish your first lesson to unlock personalised review.';
-      const learned = completedLessonKeys.flatMap(key => lessons[key].questions).filter(q => q.phrase && q.type !== 'record');
+      const learned = completedLessonKeys.flatMap(key => lessons[key].questions).filter(q => q.phrase && q.type !== 'speak');
       $('practicePhrases').innerHTML = learned.length ? learned.slice(0, 5).map(q => {
         const value = saved.mastery[q.phrase] || 40;
         return `<div class="phrase-row"><div><strong>${q.phrase}</strong><span>${q.hint}</span></div><div class="mastery"><small>${value}%</small><div class="mini-track"><i style="width:${value}%"></i></div></div></div>`;
@@ -549,7 +544,7 @@
     }
 
     function buildPractice() {
-      const source = saved.completedLessons.filter(key => !key.startsWith('checkpoint_')).flatMap(key => lessons[key].questions).filter(q => q.type !== 'record');
+      const source = saved.completedLessons.filter(key => !key.startsWith('checkpoint_')).flatMap(key => lessons[key].questions).filter(q => q.type !== 'speak');
       if (!source.length) return showToast('Complete a lesson first');
       const pool = source.map(q => ({ ...q }));
       while (pool.length < 5) pool.push({ ...source[pool.length % source.length] });
@@ -566,7 +561,7 @@
     }
 
     function renderQuestion() {
-      selected = null; checked = false; arranged = []; hasRecorded = false;
+      selected = null; checked = false; arranged = []; hasPractised = false;
       feedback.className = 'feedback';
       feedback.textContent = '';
       checkButton.disabled = true;
@@ -582,14 +577,13 @@
         html += `<div class="word-bank" id="wordBank"><span class="hint">Tap the words in the right order</span></div><div class="word-pool">${q.words.map((w, i) => `<button class="word" data-word="${i}">${w}</button>`).join('')}</div>`;
       } else {
         html += `<div class="audio-card"><button class="audio-button" aria-label="Play phrase" data-speak>🔊</button><div><div class="phrase-text">${q.phrase}</div><div class="hint">${q.hint}</div></div></div>`;
-        html += `<div class="record-card"><button class="record-orb" id="recordButton" aria-label="Start recording">●</button><p class="record-status" id="recordStatus">Tap to record yourself</p><div id="playback"></div><p><button class="secondary" id="speakAloudButton">I practised aloud</button></p></div>`;
+        html += `<div class="speak-card"><div class="speak-mark">🗣️</div><p>Play the phrase, repeat it at your own pace, then continue.</p><button class="secondary" id="practiceButton">I practised aloud</button></div>`;
       }
       area.innerHTML = html;
       area.querySelector('[data-speak]')?.addEventListener('click', () => speak(q.speech));
       area.querySelectorAll('[data-choice]').forEach(btn => btn.addEventListener('click', () => choose(btn)));
       area.querySelectorAll('[data-word]').forEach(btn => btn.addEventListener('click', () => addWord(btn)));
-      $('recordButton')?.addEventListener('click', toggleRecording);
-      $('speakAloudButton')?.addEventListener('click', () => { hasRecorded = true; checkButton.disabled = false; $('recordStatus').textContent = 'Nice — speaking out loud counts!'; });
+      $('practiceButton')?.addEventListener('click', () => { hasPractised = true; checkButton.disabled = false; $('practiceButton').textContent = 'Practised ✓'; });
     }
 
     function choose(btn) {
@@ -616,37 +610,13 @@
       checkButton.disabled = true;
     }
 
-    async function toggleRecording() {
-      const btn = $('recordButton');
-      if (mediaRecorder?.state === 'recording') { mediaRecorder.stop(); return; }
-      if (!navigator.mediaDevices?.getUserMedia) {
-        hasRecorded = true; checkButton.disabled = false; $('recordStatus').textContent = 'Recording is unavailable — practise aloud, then continue'; return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioChunks = [];
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        mediaRecorder.onstop = () => {
-          const url = URL.createObjectURL(new Blob(audioChunks, { type: mediaRecorder.mimeType }));
-          $('playback').innerHTML = `<audio controls src="${url}" aria-label="Your recording"></audio>`;
-          $('recordStatus').textContent = 'Nice! Listen back or continue.';
-          btn.classList.remove('recording'); btn.textContent = '●';
-          stream.getTracks().forEach(t => t.stop());
-          hasRecorded = true; checkButton.disabled = false;
-        };
-        mediaRecorder.start(); btn.classList.add('recording'); btn.textContent = '■';
-        $('recordStatus').textContent = 'Recording… tap to stop';
-      } catch { $('recordStatus').textContent = 'Microphone blocked — say it aloud, then continue'; hasRecorded = true; checkButton.disabled = false; }
-    }
-
     function checkAnswer() {
       if (checked) { nextQuestion(); return; }
       const q = currentQuestions[current];
-      let correct = q.type === 'record' ? hasRecorded : q.type === 'arrange' ? arranged.join(' ') === q.answerText : selected === q.answer;
+      let correct = q.type === 'speak' ? hasPractised : q.type === 'arrange' ? arranged.join(' ') === q.answerText : selected === q.answer;
       checked = true;
       if (correct) {
-        feedback.textContent = q.type === 'record' ? 'Great speaking practice!' : 'Correct! Chennagide!';
+        feedback.textContent = q.type === 'speak' ? 'Great speaking practice!' : 'Correct! Chennagide!';
         feedback.className = 'feedback show good';
         const gained = sessionMode === 'practice' ? 3 : activeKey.startsWith('checkpoint_') ? 5 : 4;
         xp += gained; sessionXp += gained; correctCount++;
