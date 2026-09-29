@@ -74,7 +74,7 @@
     .unit-card p { margin: 4px 0 0; color: rgba(255,255,255,.8); font-size: .92rem; }
 
     .path { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 42px 0 10px; position: relative; }
-    .path::before { content: ""; position: absolute; top: 35px; bottom: 30px; width: 8px; background: #ebe7f4; border-radius: 999px; z-index: -1; }
+    .path::before { display: none; }
     .lesson-row { width: min(100%, 430px); display: flex; align-items: center; gap: 20px; }
     .lesson-row:nth-child(even) { flex-direction: row-reverse; text-align: right; transform: translateX(45px); }
     .lesson-row:nth-child(odd) { transform: translateX(-45px); }
@@ -85,6 +85,25 @@
     .lesson-node.done { background: var(--green); box-shadow: 0 8px 0 #168b5f; }
     .lesson-label strong { display: block; font-size: 1.05rem; }
     .lesson-label span { color: var(--muted); font-size: .9rem; }
+    .course-map { display: grid; gap: 34px; margin-top: 28px; }
+    .milestone-block { border-radius: 26px; background: #fff; border: 2px solid var(--line); overflow: hidden; }
+    .milestone-header { color: #fff; background: var(--purple); padding: 20px 24px; display: flex; align-items: center; gap: 15px; }
+    .milestone-block:nth-child(2) .milestone-header { background: #168b87; }
+    .milestone-block:nth-child(3) .milestone-header { background: #c37417; }
+    .milestone-block:nth-child(4) .milestone-header { background: #d64f70; }
+    .milestone-block:nth-child(5) .milestone-header { background: #4374c9; }
+    .milestone-block:nth-child(6) .milestone-header { background: #5d4a9d; }
+    .milestone-number { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 16px; background: rgba(255,255,255,.18); display: grid; place-items: center; font-size: 1.4rem; }
+    .milestone-header h2 { margin: 0; font-size: 1.2rem; }
+    .milestone-header p { margin: 3px 0 0; color: rgba(255,255,255,.78); font-size: .88rem; }
+    .milestone-progress { margin-left: auto; font-weight: 900; white-space: nowrap; }
+    .milestone-block .path { padding: 32px 26px 38px; }
+    .course-overview { display: flex; align-items: center; justify-content: space-between; gap: 18px; background: var(--purple-soft); border: 2px solid #ddd6ff; border-radius: 20px; padding: 17px 20px; margin-top: 24px; }
+    .course-overview strong { display: block; color: var(--purple-dark); }
+    .course-overview span { color: var(--muted); font-size: .9rem; }
+    .course-progress-ring { width: 62px; height: 62px; flex: 0 0 62px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--purple) var(--course-progress, 0%), #ddd7f4 0); position: relative; font-weight: 900; font-size: .8rem; }
+    .course-progress-ring::before { content: ""; position: absolute; inset: 7px; background: var(--purple-soft); border-radius: 50%; }
+    .course-progress-ring span { position: relative; color: var(--purple-dark); }
 
     .side { position: sticky; top: 108px; align-self: start; display: grid; gap: 18px; }
     .side-card { background: #fff; border: 2px solid var(--line); border-radius: 20px; padding: 20px; }
@@ -214,6 +233,9 @@
       .big-stat { padding: 14px 5px; }
       .achievement-grid { grid-template-columns: 1fr; }
       .practice-hero { padding: 24px 20px; }
+      .milestone-block .path { padding-inline: 14px; }
+      .milestone-header { padding: 18px; }
+      .milestone-progress { font-size: .82rem; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
@@ -244,29 +266,11 @@
             <p>Short, useful lessons for conversations in the real world.</p>
           </div>
 
-          <div class="unit-card">
-            <div class="unit-badge">👋</div>
-            <div><h2>Milestone 1 · First conversations</h2><p>Greet people, introduce yourself and be polite.</p></div>
+          <div class="course-overview">
+            <div><strong>30-day spoken Kannada path</strong><span id="courseOverviewText">30 activities · 6 milestones</span></div>
+            <div class="course-progress-ring" id="courseProgressRing"><span id="courseProgressText">0%</span></div>
           </div>
-
-          <div class="path" aria-label="Lesson path">
-            <div class="lesson-row">
-              <button class="lesson-node" id="lessonNode0" data-lesson="greetings" aria-label="Start Greetings lesson">👋</button>
-              <div class="lesson-label"><strong>Greetings</strong><span>5 quick exercises</span></div>
-            </div>
-            <div class="lesson-row">
-              <button class="lesson-node locked" id="lessonNode1" data-lesson="introductions" aria-label="Introductions lesson, locked" disabled>🔒</button>
-              <div class="lesson-label"><strong>Introductions</strong><span>Complete Greetings first</span></div>
-            </div>
-            <div class="lesson-row">
-              <button class="lesson-node locked" id="lessonNode2" data-lesson="polite" aria-label="Polite words lesson, locked" disabled>🔒</button>
-              <div class="lesson-label"><strong>Polite words</strong><span>Locked</span></div>
-            </div>
-            <div class="lesson-row">
-              <button class="lesson-node locked" id="checkpointNode" data-lesson="checkpoint" aria-label="First checkpoint, locked" disabled>🏆</button>
-              <div class="lesson-label"><strong>First checkpoint</strong><span>Milestone challenge</span></div>
-            </div>
-          </div>
+          <div class="course-map" id="courseMap" aria-label="30-day lesson path"></div>
           </section>
 
           <section class="content-view" id="practiceContent">
@@ -337,55 +341,89 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script>
-    const lessons = {
-      greetings: {
-        title: 'Greetings', icon: '👋', completion: 'You can now start a friendly conversation in Kannada.',
-        questions: [
-          { type: 'choice', prompt: 'What does this greeting mean?', phrase: 'Namaskara', speech: 'ನಮಸ್ಕಾರ', hint: 'A friendly greeting', choices: ['Goodbye', 'Hello', 'Please'], answer: 1 },
-          { type: 'choice', prompt: 'What are they asking?', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'A polite everyday greeting', choices: ['Where are you going?', 'What is your name?', 'How are you?'], answer: 2 },
-          { type: 'arrange', prompt: 'Build: “I am fine”', words: ['iddeeni', 'Chennagi'], answerText: 'Chennagi iddeeni' },
-          { type: 'choice', prompt: 'Choose the natural reply', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'How are you?', choices: ['Chennagiddeeni', 'Nanage gothilla', 'Nale sigona'], answer: 0 },
-          { type: 'record', prompt: 'Say the greeting out loud', phrase: 'Namaskara, hegiddeera?', speech: 'ನಮಸ್ಕಾರ, ಹೇಗಿದ್ದೀರಾ?', hint: 'Hello, how are you?' }
-        ]
-      },
-      introductions: {
-        title: 'Introductions', icon: '🙂', completion: 'You can introduce yourself and ask someone their name.',
-        questions: [
-          { type: 'choice', prompt: 'What does this mean?', phrase: 'Nanna hesaru Maya', speech: 'ನನ್ನ ಹೆಸರು ಮಾಯಾ', hint: 'A simple introduction', choices: ['I am from Mysuru', 'My name is Maya', 'This is Maya'], answer: 1 },
-          { type: 'arrange', prompt: 'Build: “My name is Ravi”', words: ['Ravi', 'hesaru', 'Nanna'], answerText: 'Nanna hesaru Ravi' },
-          { type: 'choice', prompt: 'What are they asking?', phrase: 'Nimma hesarenu?', speech: 'ನಿಮ್ಮ ಹೆಸರೇನು?', hint: 'Use this with someone new', choices: ['What is your name?', 'Where do you live?', 'How are you?'], answer: 0 },
-          { type: 'choice', prompt: 'Choose the right reply', phrase: 'Nimma hesarenu?', speech: 'ನಿಮ್ಮ ಹೆಸರೇನು?', hint: 'What is your name?', choices: ['Chennagide', 'Nanna hesaru Asha', 'Parvaagilla'], answer: 1 },
-          { type: 'record', prompt: 'Introduce yourself', phrase: 'Nanna hesaru…', speech: 'ನನ್ನ ಹೆಸರು', hint: 'My name is… Add your own name.' }
-        ]
-      },
-      polite: {
-        title: 'Polite words', icon: '✨', completion: 'You have the essential words for a polite everyday exchange.',
-        questions: [
-          { type: 'choice', prompt: 'Pick the casual meaning', phrase: 'Parvaagilla', speech: 'ಪರವಾಗಿಲ್ಲ', hint: 'A very useful everyday reply', choices: ['No problem', 'I do not know', 'See you tomorrow'], answer: 0 },
-          { type: 'choice', prompt: 'What does this mean?', phrase: 'Nanage gothilla', speech: 'ನನಗೆ ಗೊತ್ತಿಲ್ಲ', hint: 'Useful when you are unsure', choices: ['I do not know', 'I do not want it', 'I cannot come'], answer: 0 },
-          { type: 'arrange', prompt: 'Build: “Please speak slowly”', words: ['heli', 'nidhaanavaagi', 'Swalpa'], answerText: 'Swalpa nidhaanavaagi heli' },
-          { type: 'choice', prompt: 'Someone helps you. What do you say?', phrase: 'Thank you', speech: 'ಧನ್ಯವಾದ', hint: 'Choose the Kannada phrase', choices: ['Kshamisi', 'Dhanyavaada', 'Gothilla'], answer: 1 },
-          { type: 'record', prompt: 'Ask them to slow down', phrase: 'Swalpa nidhaanavaagi heli', speech: 'ಸ್ವಲ್ಪ ನಿಧಾನವಾಗಿ ಹೇಳಿ', hint: 'Please speak a little slowly' }
-        ]
-      },
-      checkpoint: {
-        title: 'First checkpoint', icon: '🏆', completion: 'Milestone complete — you are ready for a first conversation!',
-        questions: [
-          { type: 'choice', prompt: 'Choose the friendly opener', phrase: 'You meet someone new', speech: 'ನಮಸ್ಕಾರ', hint: 'How would you begin?', choices: ['Namaskara', 'Gothilla', 'Parvaagilla'], answer: 0 },
-          { type: 'choice', prompt: 'What does this mean?', phrase: 'Nimma hesarenu?', speech: 'ನಿಮ್ಮ ಹೆಸರೇನು?', hint: 'Listen and remember', choices: ['Are you okay?', 'What is your name?', 'Where are you going?'], answer: 1 },
-          { type: 'arrange', prompt: 'Build your reply', words: ['hesaru', 'Leela', 'Nanna'], answerText: 'Nanna hesaru Leela' },
-          { type: 'choice', prompt: 'Say “I do not know”', phrase: 'Pick the useful phrase', speech: 'ನನಗೆ ಗೊತ್ತಿಲ್ಲ', hint: 'Colloquial Kannada', choices: ['Nanage gothilla', 'Chennagiddeeni', 'Nale sigona'], answer: 0 },
-          { type: 'arrange', prompt: 'Ask them to speak slowly', words: ['heli', 'Swalpa', 'nidhaanavaagi'], answerText: 'Swalpa nidhaanavaagi heli' },
-          { type: 'choice', prompt: 'Choose the reassuring reply', phrase: 'No problem', speech: 'ಪರವಾಗಿಲ್ಲ', hint: 'You will hear this often', choices: ['Dhanyavaada', 'Parvaagilla', 'Namaskara'], answer: 1 },
-          { type: 'record', prompt: 'Finish with a mini introduction', phrase: 'Namaskara, nanna hesaru…', speech: 'ನಮಸ್ಕಾರ, ನನ್ನ ಹೆಸರು', hint: 'Hello, my name is…' }
-        ]
-      }
-    };
+    const curriculum = [
+      { title: 'First conversations', icon: '👋', description: 'Greet people, introduce yourself and ask simple questions.', lessons: [
+        ['greetings', 'Greetings', '👋', [['Namaskara','Hello','ನಮಸ್ಕಾರ'],['Hegiddeera?','How are you?','ಹೇಗಿದ್ದೀರಾ?'],['Chennagiddeeni','I am fine','ಚೆನ್ನಾಗಿದ್ದೀನಿ'],['Matte sigona','See you again','ಮತ್ತೆ ಸಿಗೋಣ']]],
+        ['introductions', 'Introductions', '🙂', [['Nanna hesaru Maya','My name is Maya','ನನ್ನ ಹೆಸರು ಮಾಯಾ'],['Nimma hesarenu?','What is your name?','ನಿಮ್ಮ ಹೆಸರೇನು?'],['Naanu Bengalurinda','I am from Bengaluru','ನಾನು ಬೆಂಗಳೂರಿಂದ'],['Nimma ooru yavudu?','Where are you from?','ನಿಮ್ಮ ಊರು ಯಾವುದು?']]],
+        ['polite', 'Polite words', '✨', [['Dayavittu','Please','ದಯವಿಟ್ಟು'],['Dhanyavaada','Thank you','ಧನ್ಯವಾದ'],['Parvaagilla','No problem','ಪರವಾಗಿಲ್ಲ'],['Kshamisi','Excuse me / sorry','ಕ್ಷಮಿಸಿ']]],
+        ['simple_questions', 'Simple questions', '❓', [['Enu?','What?','ಏನು?'],['Yaake?','Why?','ಯಾಕೆ?'],['Elli?','Where?','ಎಲ್ಲಿ?'],['Eshtu?','How much?','ಎಷ್ಟು?']]]
+      ]},
+      { title: 'Getting around', icon: '🛺', description: 'Use autos, follow directions and make simple plans.', lessons: [
+        ['auto_taxi', 'Auto & taxi', '🛺', [['Illige banni','Come here','ಇಲ್ಲಿಗೆ ಬನ್ನಿ'],['Majestic-ge hogbeku','I need to go to Majestic','ಮೆಜೆಸ್ಟಿಕ್‌ಗೆ ಹೋಗಬೇಕು'],['Meter haaki','Please use the meter','ಮೀಟರ್ ಹಾಕಿ'],['Illi nilsi','Stop here','ಇಲ್ಲಿ ನಿಲ್ಲಿಸಿ']]],
+        ['directions', 'Directions', '🧭', [['Edagade','To the left','ಎಡಗಡೆ'],['Balagade','To the right','ಬಲಗಡೆ'],['Neraagi hogi','Go straight','ನೇರಾಗಿ ಹೋಗಿ'],['Hattira ide','It is nearby','ಹತ್ತಿರ ಇದೆ']]],
+        ['places', 'Finding places', '📍', [['Bus stop ellide?','Where is the bus stop?','ಬಸ್ ಸ್ಟಾಪ್ ಎಲ್ಲಿದೆ?'],['Toilet ellide?','Where is the toilet?','ಟಾಯ್ಲೆಟ್ ಎಲ್ಲಿದೆ?'],['Idhu yaava area?','Which area is this?','ಇದು ಯಾವ ಏರಿಯಾ?'],['Naanu daari thappiddeeni','I am lost','ನಾನು ದಾರಿ ತಪ್ಪಿದ್ದೀನಿ']]],
+        ['time_plans', 'Time & plans', '🕒', [['Eshtu gante?','What time is it?','ಎಷ್ಟು ಗಂಟೆ?'],['Ivattu','Today','ಇವತ್ತು'],['Naale','Tomorrow','ನಾಳೆ'],['Sanje sigona','Let us meet in the evening','ಸಂಜೆ ಸಿಗೋಣ']]]
+      ]},
+      { title: 'Food & chai', icon: '☕', description: 'Order food, share preferences and pay with confidence.', lessons: [
+        ['ordering', 'Ordering food', '🍽️', [['Ondu coffee kodi','One coffee, please','ಒಂದು ಕಾಫಿ ಕೊಡಿ'],['Eradu idli kodi','Two idlis, please','ಎರಡು ಇಡ್ಲಿ ಕೊಡಿ'],['Menu kodi','Please give me the menu','ಮೆನು ಕೊಡಿ'],['Saaku','That is enough','ಸಾಕು']]],
+        ['preferences', 'Likes & choices', '😋', [['Nanage idu ishta','I like this','ನನಗೆ ಇದು ಇಷ್ಟ'],['Nanage beda','I do not want it','ನನಗೆ ಬೇಡ'],['Tumba chennagide','It is very good','ತುಂಬ ಚೆನ್ನಾಗಿದೆ'],['Bere enadru ideya?','Is there anything else?','ಬೇರೆ ಏನಾದ್ರೂ ಇದೆಯಾ?']]],
+        ['spice_quantity', 'Spice & quantity', '🌶️', [['Khara kammi','Less spicy','ಖಾರ ಕಮ್ಮಿ'],['Swalpa jasthi','A little more','ಸ್ವಲ್ಪ ಜಾಸ್ತಿ'],['Bisi ide','It is hot','ಬಿಸಿ ಇದೆ'],['Neeru kodi','Please give me water','ನೀರು ಕೊಡಿ']]],
+        ['paying', 'Paying', '💳', [['Bill kodi','Please give me the bill','ಬಿಲ್ ಕೊಡಿ'],['Eshtu aaytu?','How much is it?','ಎಷ್ಟು ಆಯ್ತು?'],['UPI maadthini','I will pay by UPI','ಯುಪಿಐ ಮಾಡ್ತೀನಿ'],['Change ideya?','Do you have change?','ಚೇಂಜ್ ಇದೆಯಾ?']]]
+      ]},
+      { title: 'Shopping', icon: '🛍️', description: 'Ask prices, quantities, sizes and bargain politely.', lessons: [
+        ['prices', 'Prices', '🏷️', [['Idhu eshtu?','How much is this?','ಇದು ಎಷ್ಟು?'],['Tumba costly','Very expensive','ತುಂಬ ಕಾಸ್ಟ್ಲಿ'],['Kammi maadi','Please reduce it','ಕಮ್ಮಿ ಮಾಡಿ'],['Okay togothini','Okay, I will take it','ಓಕೆ ತಗೋತೀನಿ']]],
+        ['quantity', 'Numbers & quantity', '⚖️', [['Ondu kilo kodi','One kilo, please','ಒಂದು ಕಿಲೋ ಕೊಡಿ'],['Ardha kilo','Half a kilo','ಅರ್ಧ ಕಿಲೋ'],['Eradu beku','I need two','ಎರಡು ಬೇಕು'],['Ishtu saaku','This much is enough','ಇಷ್ಟು ಸಾಕು']]],
+        ['clothes', 'Clothes & sizes', '👕', [['Bere colour ideya?','Is there another colour?','ಬೇರೆ ಕಲರ್ ಇದೆಯಾ?'],['Dodda size','A bigger size','ದೊಡ್ಡ ಸೈಜ್'],['Chikka size','A smaller size','ಚಿಕ್ಕ ಸೈಜ್'],['Try maadbahuda?','Can I try it?','ಟ್ರೈ ಮಾಡಬಹುದಾ?']]],
+        ['bargaining', 'Bargaining', '🤝', [['Last price enu?','What is the final price?','ಲಾಸ್ಟ್ ಪ್ರೈಸ್ ಏನು?'],['Swalpa kammi maadi','Please reduce it a little','ಸ್ವಲ್ಪ ಕಮ್ಮಿ ಮಾಡಿ'],['Cash kodthini','I will pay cash','ಕ್ಯಾಶ್ ಕೊಡ್ತೀನಿ'],['Beda bidi','No, leave it','ಬೇಡ ಬಿಡಿ']]]
+      ]},
+      { title: 'Home & people', icon: '🏠', description: 'Talk about family, home and everyday routines.', lessons: [
+        ['family', 'Family & friends', '👨‍👩‍👧', [['Ivaru nanna amma','This is my mother','ಇವರು ನನ್ನ ಅಮ್ಮ'],['Nanna friend','My friend','ನನ್ನ ಫ್ರೆಂಡ್'],['Maneyalli ellaru chennagiddare','Everyone at home is well','ಮನೆಯಲ್ಲಿ ಎಲ್ಲರೂ ಚೆನ್ನಾಗಿದ್ದಾರೆ'],['Nimma family hegiddare?','How is your family?','ನಿಮ್ಮ ಫ್ಯಾಮಿಲಿ ಹೇಗಿದ್ದಾರೆ?']]],
+        ['home_basics', 'Home basics', '💡', [['Neeru barthilla','The water is not coming','ನೀರು ಬರ್ತಿಲ್ಲ'],['Current illa','There is no power','ಕರೆಂಟ್ ಇಲ್ಲ'],['Baagilu mucchi','Close the door','ಬಾಗಿಲು ಮುಚ್ಚಿ'],['Light haaki','Switch on the light','ಲೈಟ್ ಹಾಕಿ']]],
+        ['help_requests', 'Help & requests', '🙌', [['Swalpa help maadi','Please help a little','ಸ್ವಲ್ಪ ಹೆಲ್ಪ್ ಮಾಡಿ'],['Idanna heg maadodu?','How do I do this?','ಇದನ್ನ ಹೇಗೆ ಮಾಡೋದು?'],['Ondu nimisha','One minute','ಒಂದು ನಿಮಿಷ'],['Naanu maadthini','I will do it','ನಾನು ಮಾಡ್ತೀನಿ']]],
+        ['daily_routine', 'Daily routine', '🌤️', [['Naanu office-ge hogthini','I am going to the office','ನಾನು ಆಫೀಸ್‌ಗೆ ಹೋಗ್ತೀನಿ'],['Oota aayta?','Have you eaten?','ಊಟ ಆಯ್ತಾ?'],['Eega bartheeni','I am coming now','ಈಗ ಬರ್ತೀನಿ'],['Swalpa late aagutte','I will be a little late','ಸ್ವಲ್ಪ ಲೇಟ್ ಆಗುತ್ತೆ']]]
+      ]},
+      { title: 'Work & social life', icon: '💬', description: 'Handle work talk, calls, invitations and urgent problems.', lessons: [
+        ['office', 'Office talk', '💼', [['Meeting ide','There is a meeting','ಮೀಟಿಂಗ್ ಇದೆ'],['Kelasa mugithu','The work is finished','ಕೆಲಸ ಮುಗಿತು'],['Swalpa busy','A little busy','ಸ್ವಲ್ಪ ಬಿಜಿ'],['Break togona','Let us take a break','ಬ್ರೇಕ್ ತಗೋಣ']]],
+        ['phone_chat', 'Phone & chat', '📱', [['Naanu call maadthini','I will call','ನಾನು ಕಾಲ್ ಮಾಡ್ತೀನಿ'],['Message kalisi','Send a message','ಮೆಸೇಜ್ ಕಳಿಸಿ'],['Signal illa','There is no signal','ಸಿಗ್ನಲ್ ಇಲ್ಲ'],['Matte call maadi','Call again','ಮತ್ತೆ ಕಾಲ್ ಮಾಡಿ']]],
+        ['invitations', 'Invitations', '🎉', [['Coffee-ge hogona','Let us go for coffee','ಕಾಫಿಗೆ ಹೋಗೋಣ'],['Naanu bartheeni','I will come','ನಾನು ಬರ್ತೀನಿ'],['Nanage aagalla','I cannot make it','ನನಗೆ ಆಗಲ್ಲ'],['Bere dina hogona','Let us go another day','ಬೇರೆ ದಿನ ಹೋಗೋಣ']]],
+        ['problems', 'Problems & emergencies', '🆘', [['Help beku','I need help','ಹೆಲ್ಪ್ ಬೇಕು'],['Doctor beku','I need a doctor','ಡಾಕ್ಟರ್ ಬೇಕು'],['Police-ge call maadi','Call the police','ಪೊಲೀಸ್‌ಗೆ ಕಾಲ್ ಮಾಡಿ'],['Nanna phone sigthilla','I cannot find my phone','ನನ್ನ ಫೋನ್ ಸಿಗ್ತಿಲ್ಲ']]]
+      ]}
+    ];
+
+    function mixedChoices(answer, alternatives, slot) {
+      const choices = alternatives.filter(item => item !== answer).slice(0, 2);
+      choices.splice(slot % 3, 0, answer);
+      return { choices, answer: choices.indexOf(answer) };
+    }
+
+    function makeLesson(spec) {
+      const [key, title, icon, phrases] = spec;
+      const meanings = phrases.map(p => p[1]);
+      const romans = phrases.map(p => p[0]);
+      const first = mixedChoices(phrases[0][1], meanings, 1);
+      const second = mixedChoices(phrases[1][1], meanings.slice().reverse(), 2);
+      const reverse = mixedChoices(phrases[3][0], romans, 1);
+      return { key, title, icon, completion: `You can now use ${title.toLowerCase()} in a real conversation.`, phrases, questions: [
+        { type: 'choice', prompt: 'What does this mean?', phrase: phrases[0][0], speech: phrases[0][2], hint: phrases[0][1], ...first },
+        { type: 'choice', prompt: 'Listen and choose the meaning', phrase: phrases[1][0], speech: phrases[1][2], hint: 'A useful everyday phrase', ...second },
+        { type: 'arrange', prompt: `Build: “${phrases[2][1]}”`, words: phrases[2][0].split(' ').reverse(), answerText: phrases[2][0] },
+        { type: 'choice', prompt: `How do you say “${phrases[3][1]}”?`, phrase: phrases[3][1], speech: phrases[3][2], hint: 'Choose the Kannada phrase', ...reverse },
+        { type: 'record', prompt: 'Say the phrase out loud', phrase: phrases[0][0], speech: phrases[0][2], hint: phrases[0][1] }
+      ]};
+    }
+
+    const lessons = {};
+    curriculum.forEach((milestone, milestoneIndex) => {
+      milestone.lessonKeys = milestone.lessons.map(spec => {
+        const lesson = makeLesson(spec); lessons[lesson.key] = lesson; return lesson.key;
+      });
+      milestone.checkpointKey = `checkpoint_${milestoneIndex + 1}`;
+      const pool = milestone.lessonKeys.map(key => lessons[key].questions[0]);
+      pool.push(lessons[milestone.lessonKeys[1]].questions[2], lessons[milestone.lessonKeys[3]].questions[3]);
+      const finalPhrase = lessons[milestone.lessonKeys[3]].phrases[0];
+      lessons[milestone.checkpointKey] = {
+        key: milestone.checkpointKey, title: milestoneIndex === 5 ? 'Final checkpoint' : `Checkpoint ${milestoneIndex + 1}`, icon: '🏆',
+        completion: milestoneIndex === 5 ? 'You finished the 30-day spoken Kannada path!' : `Milestone ${milestoneIndex + 1} complete — keep going!`,
+        questions: [...pool.slice(0, 6), { type: 'record', prompt: 'Finish by saying this aloud', phrase: finalPhrase[0], speech: finalPhrase[2], hint: finalPhrase[1] }]
+      };
+    });
+    const lessonOrder = curriculum.flatMap(m => [...m.lessonKeys, m.checkpointKey]);
 
     let saved;
     try { saved = JSON.parse(localStorage.getItem('kannolingo-progress') || '{}'); } catch { saved = {}; }
-    const lessonOrder = ['greetings', 'introductions', 'polite'];
     if (!Array.isArray(saved.completedLessons)) saved.completedLessons = saved.completed ? ['greetings'] : [];
+    if (saved.checkpointComplete && !saved.completedLessons.includes('checkpoint_1')) saved.completedLessons.push('checkpoint_1');
+    saved.completedLessons = saved.completedLessons.filter(key => lessons[key]);
     saved.mastery = saved.mastery && typeof saved.mastery === 'object' ? saved.mastery : {};
     saved.streak = Number(saved.streak || 1);
     saved.practiceCount = Number(saved.practiceCount || 0);
@@ -429,33 +467,49 @@
       updateProfile();
     }
 
+    function isUnlocked(key) {
+      const index = lessonOrder.indexOf(key);
+      return index === 0 || index > 0 && saved.completedLessons.includes(lessonOrder[index - 1]);
+    }
+
+    function renderCourseMap() {
+      $('courseMap').innerHTML = curriculum.map((milestone, milestoneIndex) => {
+        const activityKeys = [...milestone.lessonKeys, milestone.checkpointKey];
+        return `<section class="milestone-block"><div class="milestone-header"><div class="milestone-number">${milestone.icon}</div><div><h2>Milestone ${milestoneIndex + 1} · ${milestone.title}</h2><p>${milestone.description}</p></div><div class="milestone-progress" id="milestoneProgress${milestoneIndex}">0 / 5</div></div><div class="path">${activityKeys.map((key, index) => `<div class="lesson-row"><button class="lesson-node locked" data-lesson="${key}" aria-label="Locked ${lessons[key].title} lesson" disabled>🔒</button><div class="lesson-label"><strong>${lessons[key].title}</strong><span>${index === 4 ? 'Milestone challenge' : '5 quick exercises'}</span></div></div>`).join('')}</div></section>`;
+      }).join('');
+      document.querySelectorAll('[data-lesson]').forEach(node => node.addEventListener('click', () => startLesson(node.dataset.lesson)));
+    }
+
     function updatePath() {
       lessonOrder.forEach((key, index) => {
-        const node = $('lessonNode' + index);
+        const node = document.querySelector(`[data-lesson="${key}"]`);
         const isDone = saved.completedLessons.includes(key);
-        const isOpen = index === 0 || saved.completedLessons.includes(lessonOrder[index - 1]);
+        const isOpen = isUnlocked(key);
         node.disabled = !isOpen;
         node.classList.toggle('locked', !isOpen);
         node.classList.toggle('done', isDone);
         node.textContent = isDone ? '✓' : isOpen ? lessons[key].icon : '🔒';
         node.setAttribute('aria-label', `${isDone ? 'Replay' : isOpen ? 'Start' : 'Locked'} ${lessons[key].title} lesson`);
         const note = node.parentElement.querySelector('.lesson-label span');
-        note.textContent = isDone ? 'Completed · replay anytime' : isOpen ? '5 quick exercises' : `Complete ${lessons[lessonOrder[index - 1]].title} first`;
+        note.textContent = isDone ? 'Completed · replay anytime' : isOpen ? key.startsWith('checkpoint_') ? '7-question challenge' : '5 quick exercises' : `Complete ${lessons[lessonOrder[index - 1]].title} first`;
       });
-      const checkpointOpen = lessonOrder.every(key => saved.completedLessons.includes(key));
-      const checkpointDone = Boolean(saved.checkpointComplete);
-      $('checkpointNode').disabled = !checkpointOpen;
-      $('checkpointNode').classList.toggle('locked', !checkpointOpen);
-      $('checkpointNode').classList.toggle('done', checkpointDone);
-      $('checkpointNode').textContent = checkpointDone ? '✓' : checkpointOpen ? '🏆' : '🔒';
-      $('checkpointNode').parentElement.querySelector('.lesson-label span').textContent = checkpointDone ? 'Milestone completed' : checkpointOpen ? '7-question challenge' : 'Complete all three lessons';
+      curriculum.forEach((milestone, index) => {
+        const keys = [...milestone.lessonKeys, milestone.checkpointKey];
+        $('milestoneProgress' + index).textContent = `${keys.filter(key => saved.completedLessons.includes(key)).length} / 5`;
+      });
+      const completed = saved.completedLessons.length;
+      const percent = Math.round(completed / lessonOrder.length * 100);
+      $('courseProgressText').textContent = percent + '%';
+      $('courseProgressRing').style.setProperty('--course-progress', percent + '%');
+      $('courseOverviewText').textContent = `${completed} of 30 activities complete · 6 milestones`;
     }
 
     function updatePractice() {
       const unlocked = saved.completedLessons.length > 0;
       $('startPractice').disabled = !unlocked;
-      $('practiceCopy').textContent = unlocked ? `Review ${saved.completedLessons.length * 5} phrases from completed lessons.` : 'Finish your first lesson to unlock personalised review.';
-      const learned = saved.completedLessons.flatMap(key => lessons[key].questions).filter(q => q.phrase && q.type !== 'record');
+      const completedLessonKeys = saved.completedLessons.filter(key => !key.startsWith('checkpoint_'));
+      $('practiceCopy').textContent = unlocked ? `Review phrases from ${completedLessonKeys.length} completed lessons.` : 'Finish your first lesson to unlock personalised review.';
+      const learned = completedLessonKeys.flatMap(key => lessons[key].questions).filter(q => q.phrase && q.type !== 'record');
       $('practicePhrases').innerHTML = learned.length ? learned.slice(0, 5).map(q => {
         const value = saved.mastery[q.phrase] || 40;
         return `<div class="phrase-row"><div><strong>${q.phrase}</strong><span>${q.hint}</span></div><div class="mastery"><small>${value}%</small><div class="mini-track"><i style="width:${value}%"></i></div></div></div>`;
@@ -463,13 +517,13 @@
     }
 
     function updateProfile() {
-      const count = saved.completedLessons.length + (saved.checkpointComplete ? 1 : 0);
+      const count = saved.completedLessons.length;
       $('profileXp').textContent = xp;
       $('profileLessons').textContent = count;
       $('profileStreak').textContent = saved.streak;
-      $('profileLevel').textContent = saved.checkpointComplete ? 'First milestone complete' : count ? `${count} session${count === 1 ? '' : 's'} completed` : 'Getting started';
+      $('profileLevel').textContent = saved.completedLessons.includes('checkpoint_6') ? '30-day path complete' : count ? `${count} of 30 activities completed` : 'Getting started';
       $('achievementFirst').classList.toggle('locked', !count);
-      $('achievementMilestone').classList.toggle('locked', !saved.checkpointComplete);
+      $('achievementMilestone').classList.toggle('locked', !saved.completedLessons.some(key => key.startsWith('checkpoint_')));
     }
 
     function speak(text) {
@@ -495,7 +549,7 @@
     }
 
     function buildPractice() {
-      const source = saved.completedLessons.flatMap(key => lessons[key].questions).filter(q => q.type !== 'record');
+      const source = saved.completedLessons.filter(key => !key.startsWith('checkpoint_')).flatMap(key => lessons[key].questions).filter(q => q.type !== 'record');
       if (!source.length) return showToast('Complete a lesson first');
       const pool = source.map(q => ({ ...q }));
       while (pool.length < 5) pool.push({ ...source[pool.length % source.length] });
@@ -594,7 +648,7 @@
       if (correct) {
         feedback.textContent = q.type === 'record' ? 'Great speaking practice!' : 'Correct! Chennagide!';
         feedback.className = 'feedback show good';
-        const gained = sessionMode === 'practice' ? 3 : activeKey === 'checkpoint' ? 5 : 4;
+        const gained = sessionMode === 'practice' ? 3 : activeKey.startsWith('checkpoint_') ? 5 : 4;
         xp += gained; sessionXp += gained; correctCount++;
         saved.todayXp = Number(saved.todayXp || 0) + gained;
         const masteryKey = q.phrase || q.answerText;
@@ -626,14 +680,14 @@
 
     function showComplete() {
       if (sessionMode === 'practice') saved.practiceCount++;
-      else if (activeKey === 'checkpoint') saved.checkpointComplete = true;
       else if (!saved.completedLessons.includes(activeKey)) saved.completedLessons.push(activeKey);
       markActiveDay();
       save();
       $('lessonProgress').style.width = '100%';
-      const title = sessionMode === 'practice' ? 'Practice complete!' : activeKey === 'checkpoint' ? 'Milestone complete!' : 'Lesson complete!';
+      const checkpoint = activeKey.startsWith('checkpoint_');
+      const title = sessionMode === 'practice' ? 'Practice complete!' : checkpoint ? 'Milestone complete!' : 'Lesson complete!';
       const message = sessionMode === 'practice' ? 'Those phrases are stronger now.' : lessons[activeKey].completion;
-      $('questionArea').innerHTML = `<div class="complete"><div class="complete-badge">${activeKey === 'checkpoint' ? '🏆' : '★'}</div><h2>${title}</h2><p>${message}</p><div class="rewards"><div class="reward"><strong>+${sessionXp}</strong><span>XP earned</span></div><div class="reward"><strong>${hearts}</strong><span>hearts left</span></div><div class="reward"><strong>${correctCount}/${currentQuestions.length}</strong><span>correct</span></div></div><button class="primary" id="returnHome">${sessionMode === 'practice' ? 'Back to practice' : 'Back to path'}</button></div>`;
+      $('questionArea').innerHTML = `<div class="complete"><div class="complete-badge">${checkpoint ? '🏆' : '★'}</div><h2>${title}</h2><p>${message}</p><div class="rewards"><div class="reward"><strong>+${sessionXp}</strong><span>XP earned</span></div><div class="reward"><strong>${hearts}</strong><span>hearts left</span></div><div class="reward"><strong>${correctCount}/${currentQuestions.length}</strong><span>correct</span></div></div><button class="primary" id="returnHome">${sessionMode === 'practice' ? 'Back to practice' : 'Back to path'}</button></div>`;
       $('answerBar').style.display = 'none';
       $('returnHome').addEventListener('click', () => { $('answerBar').style.display = ''; exitLesson(); showView(sessionMode === 'practice' ? 'practice' : 'learn'); });
     }
@@ -657,7 +711,7 @@
       clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
-    document.querySelectorAll('[data-lesson]').forEach(node => node.addEventListener('click', () => startLesson(node.dataset.lesson)));
+    renderCourseMap();
     document.querySelectorAll('[data-view]').forEach(node => node.addEventListener('click', () => showView(node.dataset.view)));
     $('startPractice').addEventListener('click', buildPractice);
     $('exitLesson').addEventListener('click', exitLesson);
@@ -669,13 +723,11 @@
         name: 'start_kannada_lesson',
         title: 'Start a Kannada lesson',
         description: 'Open an available spoken Kannada lesson and show its first exercise.',
-        inputSchema: { type: 'object', properties: { lesson: { type: 'string', enum: ['greetings', 'introductions', 'polite', 'checkpoint'] } }, required: ['lesson'], additionalProperties: false },
+        inputSchema: { type: 'object', properties: { lesson: { type: 'string', enum: lessonOrder } }, required: ['lesson'], additionalProperties: false },
         annotations: { readOnlyHint: false, untrustedContentHint: false },
         execute(input) {
           if (!input || typeof input !== 'object' || Array.isArray(input) || !lessons[input.lesson] || Object.keys(input).some(key => key !== 'lesson')) throw new TypeError('Choose a valid lesson.');
-          const index = lessonOrder.indexOf(input.lesson);
-          const isOpen = input.lesson === 'greetings' || input.lesson === 'checkpoint' && lessonOrder.every(key => saved.completedLessons.includes(key)) || index > 0 && saved.completedLessons.includes(lessonOrder[index - 1]);
-          if (!isOpen) throw new Error('That lesson is still locked.');
+          if (!isUnlocked(input.lesson)) throw new Error('That lesson is still locked.');
           startLesson(input.lesson);
           return { lesson: lessons[input.lesson].title, question: 1, totalQuestions: currentQuestions.length };
         }
