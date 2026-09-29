@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7057e8">
+  <meta name="description" content="Learn useful spoken Kannada through quick, playful lessons.">
+  <title>Kannolingo — Spoken Kannada, one bite at a time</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%237057e8'/%3E%3Cpath d='M17 14h10v15l13-15h12L37 31l16 19H40L27 34v16H17z' fill='white'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --ink: #27243a;
+      --muted: #77728e;
+      --line: #e7e3f2;
+      --paper: #fbfaff;
+      --white: #fff;
+      --purple: #7057e8;
+      --purple-dark: #563dcc;
+      --purple-soft: #eeeaff;
+      --yellow: #ffc843;
+      --green: #24b47e;
+      --red: #ee5f6b;
+      --shadow: 0 10px 0 rgba(74, 55, 159, .12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: ui-rounded, "SF Pro Rounded", "Nunito Sans", system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+    button { font: inherit; }
+    button:focus-visible { outline: 4px solid rgba(112,87,232,.28); outline-offset: 3px; }
+    .app { min-height: 100vh; }
+
+    .topbar {
+      height: 76px;
+      background: rgba(255,255,255,.93);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 max(20px, calc((100vw - 1120px) / 2));
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 1.25rem; font-weight: 900; letter-spacing: -.03em; }
+    .brand-mark { width: 42px; height: 42px; border-radius: 14px; background: var(--purple); color: #fff; display: grid; place-items: center; box-shadow: 0 5px 0 #4f39bb; font-size: 1.2rem; }
+    .top-stats { margin-left: auto; display: flex; align-items: center; gap: 20px; font-weight: 800; }
+    .stat { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .stat-icon { font-size: 1.25rem; }
+    .stat.streak { color: #ed8b23; }
+    .stat.hearts { color: var(--red); }
+    .stat.xp { color: var(--purple); }
+
+    main { width: min(100% - 32px, 1040px); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 650px) 280px; gap: 56px; padding: 42px 0 100px; }
+    .welcome { margin-bottom: 30px; }
+    .eyebrow { color: var(--purple); font-size: .8rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; margin: 0 0 8px; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.06; letter-spacing: -.055em; margin: 0; max-width: 600px; }
+    .welcome p:last-child { color: var(--muted); font-size: 1.04rem; margin: 12px 0 0; }
+
+    .unit-card { background: var(--purple); color: #fff; border-radius: var(--radius); padding: 22px 24px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow); }
+    .unit-badge { flex: 0 0 auto; width: 52px; height: 52px; border-radius: 17px; background: rgba(255,255,255,.18); display: grid; place-items: center; font-size: 1.55rem; }
+    .unit-card h2 { margin: 0; font-size: 1.3rem; }
+    .unit-card p { margin: 4px 0 0; color: rgba(255,255,255,.8); font-size: .92rem; }
+
+    .path { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 42px 0 10px; position: relative; }
+    .path::before { content: ""; position: absolute; top: 35px; bottom: 30px; width: 8px; background: #ebe7f4; border-radius: 999px; z-index: -1; }
+    .lesson-row { width: min(100%, 430px); display: flex; align-items: center; gap: 20px; }
+    .lesson-row:nth-child(even) { flex-direction: row-reverse; text-align: right; transform: translateX(45px); }
+    .lesson-row:nth-child(odd) { transform: translateX(-45px); }
+    .lesson-node { border: 0; width: 88px; height: 82px; flex: 0 0 88px; border-radius: 30px; display: grid; place-items: center; font-size: 2rem; cursor: pointer; color: #fff; background: var(--purple); box-shadow: 0 8px 0 var(--purple-dark); transition: transform .18s, box-shadow .18s; position: relative; }
+    .lesson-node:hover { transform: translateY(-3px); box-shadow: 0 11px 0 var(--purple-dark); }
+    .lesson-node:active { transform: translateY(5px); box-shadow: 0 3px 0 var(--purple-dark); }
+    .lesson-node.locked { background: #d6d2df; box-shadow: 0 8px 0 #bdb8ca; cursor: not-allowed; }
+    .lesson-node.done { background: var(--green); box-shadow: 0 8px 0 #168b5f; }
+    .lesson-label strong { display: block; font-size: 1.05rem; }
+    .lesson-label span { color: var(--muted); font-size: .9rem; }
+
+    .side { position: sticky; top: 108px; align-self: start; display: grid; gap: 18px; }
+    .side-card { background: #fff; border: 2px solid var(--line); border-radius: 20px; padding: 20px; }
+    .side-card h3 { margin: 0 0 14px; font-size: 1rem; }
+    .daily-head { display: flex; justify-content: space-between; align-items: baseline; color: var(--muted); font-size: .9rem; }
+    .progress-track { margin-top: 10px; height: 14px; border-radius: 99px; background: #ece9f4; overflow: hidden; }
+    .progress-fill { width: 0%; height: 100%; border-radius: inherit; background: var(--yellow); transition: width .4s ease; }
+    .phrase { padding: 14px; background: var(--purple-soft); border-radius: 14px; }
+    .phrase strong { display: block; color: var(--purple-dark); }
+    .phrase span { color: var(--muted); font-size: .9rem; }
+
+    .lesson-view { display: none; min-height: calc(100vh - 76px); background: #fff; }
+    .lesson-view.active { display: block; }
+    .learn-shell { width: min(100% - 32px, 760px); margin: 0 auto; padding: 22px 0 130px; }
+    .lesson-head { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 16px; }
+    .icon-button { border: 0; background: transparent; color: var(--muted); font-size: 1.6rem; cursor: pointer; min-width: 44px; min-height: 44px; border-radius: 12px; }
+    .lesson-progress { height: 14px; background: #e9e6ef; border-radius: 20px; overflow: hidden; }
+    .lesson-progress > div { height: 100%; width: 0%; background: var(--green); border-radius: inherit; transition: width .35s ease; }
+    .lesson-body { padding-top: clamp(46px, 9vw, 82px); }
+    .question-count { color: var(--purple); font-size: .82rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .lesson-body h2 { margin: 8px 0 28px; font-size: clamp(1.65rem, 5vw, 2.35rem); letter-spacing: -.035em; line-height: 1.15; }
+    .audio-card { border: 2px solid var(--line); border-radius: 22px; padding: 24px; display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+    .audio-button { border: 0; width: 58px; height: 58px; flex: 0 0 58px; border-radius: 18px; background: var(--purple); color: white; font-size: 1.5rem; cursor: pointer; box-shadow: 0 5px 0 var(--purple-dark); }
+    .phrase-text { font-size: 1.35rem; font-weight: 900; }
+    .hint { color: var(--muted); font-size: .9rem; margin-top: 3px; }
+    .choices { display: grid; gap: 12px; }
+    .choice { width: 100%; min-height: 66px; padding: 14px 18px; background: #fff; color: var(--ink); border: 2px solid var(--line); border-bottom-width: 5px; border-radius: 16px; cursor: pointer; text-align: left; font-weight: 800; transition: border-color .15s, background .15s, transform .15s; }
+    .choice:hover { border-color: #bdb3f7; background: #faf9ff; }
+    .choice.selected { border-color: var(--purple); background: var(--purple-soft); color: var(--purple-dark); transform: translateY(2px); border-bottom-width: 3px; }
+    .choice.correct { border-color: var(--green); background: #e9fbf4; color: #137653; }
+    .choice.wrong { border-color: var(--red); background: #fff0f2; color: #b32d3a; }
+    .word-bank { min-height: 76px; border-bottom: 3px dashed var(--line); display: flex; align-items: center; justify-content: center; gap: 9px; flex-wrap: wrap; margin-bottom: 24px; padding: 10px; }
+    .word-pool { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+    .word { border: 2px solid var(--line); border-bottom-width: 5px; border-radius: 13px; background: white; padding: 11px 16px; font-weight: 800; cursor: pointer; }
+    .word.used { opacity: .25; pointer-events: none; }
+    .record-card { text-align: center; border: 2px solid var(--line); border-radius: 24px; padding: 28px 20px; }
+    .record-orb { border: 0; width: 78px; height: 78px; border-radius: 50%; background: var(--purple); color: white; font-size: 1.8rem; box-shadow: 0 7px 0 var(--purple-dark); cursor: pointer; }
+    .record-orb.recording { background: var(--red); box-shadow: 0 7px 0 #ba3541; animation: pulse 1.1s infinite; }
+    .record-status { margin: 16px 0 0; color: var(--muted); }
+    audio { margin-top: 16px; width: min(100%, 340px); }
+    @keyframes pulse { 50% { transform: scale(1.08); } }
+
+    .answer-bar { position: fixed; bottom: 0; left: 0; right: 0; border-top: 2px solid var(--line); background: rgba(255,255,255,.97); padding: 18px max(16px, calc((100vw - 760px) / 2)); z-index: 30; }
+    .answer-inner { display: flex; justify-content: flex-end; align-items: center; gap: 16px; }
+    .feedback { margin-right: auto; display: none; font-weight: 900; }
+    .feedback.show { display: block; }
+    .feedback.good { color: var(--green); }
+    .feedback.bad { color: var(--red); }
+    .primary { border: 0; border-radius: 15px; background: var(--purple); color: white; min-width: 150px; padding: 15px 22px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; box-shadow: 0 5px 0 var(--purple-dark); cursor: pointer; }
+    .primary:disabled { background: #d2cedb; box-shadow: 0 5px 0 #b9b4c4; cursor: not-allowed; }
+    .primary:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 var(--purple-dark); }
+
+    .complete { text-align: center; padding-top: 60px; }
+    .complete-badge { width: 120px; height: 120px; margin: 0 auto 26px; border-radius: 38px; background: var(--yellow); display: grid; place-items: center; font-size: 3.7rem; box-shadow: 0 9px 0 #e0a82b; transform: rotate(-4deg); }
+    .complete h2 { font-size: 2.6rem; margin: 0; }
+    .complete p { color: var(--muted); font-size: 1.05rem; }
+    .rewards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 30px 0; }
+    .reward { border: 2px solid var(--line); border-radius: 18px; padding: 18px 8px; }
+    .reward strong { display: block; font-size: 1.5rem; }
+    .reward span { color: var(--muted); font-size: .85rem; }
+
+    .dashboard.hidden { display: none; }
+    .mobile-nav { display: none; }
+    .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; opacity: 0; pointer-events: none; transition: .2s; z-index: 50; text-align: center; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 800px) {
+      .topbar { height: 66px; padding: 0 18px; }
+      .brand span:last-child { display: none; }
+      .brand-mark { width: 39px; height: 39px; }
+      .top-stats { gap: 13px; font-size: .92rem; }
+      .stat.xp { display: none; }
+      main { width: min(100% - 28px, 620px); grid-template-columns: 1fr; padding-top: 30px; }
+      .side { display: none; }
+      .lesson-row:nth-child(even), .lesson-row:nth-child(odd) { transform: none; }
+      .welcome p:last-child { font-size: .96rem; }
+      .mobile-nav { position: fixed; display: flex; bottom: 0; left: 0; right: 0; height: 70px; background: #fff; border-top: 1px solid var(--line); z-index: 15; justify-content: space-around; align-items: center; }
+      .nav-item { color: var(--muted); background: transparent; border: 0; font-size: .77rem; font-weight: 800; display: grid; gap: 2px; justify-items: center; }
+      .nav-item.active { color: var(--purple); }
+      .nav-item b { font-size: 1.35rem; }
+      .learn-shell { width: min(100% - 28px, 760px); }
+      .answer-inner { align-items: stretch; flex-direction: column; gap: 9px; }
+      .feedback { margin: 0; }
+      .primary { width: 100%; }
+      .answer-bar { padding-block: 12px; }
+      .lesson-body { padding-top: 38px; }
+      .rewards { gap: 8px; }
+      .reward { padding: 14px 4px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="dashboard" id="dashboard">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">K</span><span>Kannolingo</span></div>
+        <div class="top-stats" aria-label="Your progress">
+          <span class="stat streak"><span class="stat-icon">🔥</span><span id="streakValue">1</span></span>
+          <span class="stat xp"><span class="stat-icon">⚡</span><span id="xpValue">0 XP</span></span>
+          <span class="stat hearts"><span class="stat-icon">♥</span><span id="heartValue">5</span></span>
+        </div>
+      </header>
+
+      <main>
+        <div>
+          <div class="welcome">
+            <p class="eyebrow">Your Kannada journey</p>
+            <h1>Speak your first words today.</h1>
+            <p>Short, useful lessons for conversations in the real world.</p>
+          </div>
+
+          <div class="unit-card">
+            <div class="unit-badge">👋</div>
+            <div><h2>Milestone 1 · First conversations</h2><p>Greet people, introduce yourself and be polite.</p></div>
+          </div>
+
+          <div class="path" aria-label="Lesson path">
+            <div class="lesson-row">
+              <button class="lesson-node" id="startLesson" aria-label="Start Greetings lesson">👋</button>
+              <div class="lesson-label"><strong>Greetings</strong><span>5 quick exercises</span></div>
+            </div>
+            <div class="lesson-row">
+              <button class="lesson-node locked" aria-label="Introductions lesson, locked" disabled>🔒</button>
+              <div class="lesson-label"><strong>Introductions</strong><span>Complete Greetings first</span></div>
+            </div>
+            <div class="lesson-row">
+              <button class="lesson-node locked" aria-label="Polite words lesson, locked" disabled>🔒</button>
+              <div class="lesson-label"><strong>Polite words</strong><span>Locked</span></div>
+            </div>
+            <div class="lesson-row">
+              <button class="lesson-node locked" aria-label="First checkpoint, locked" disabled>🏆</button>
+              <div class="lesson-label"><strong>First checkpoint</strong><span>Milestone challenge</span></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="side">
+          <div class="side-card">
+            <h3>Daily goal</h3>
+            <div class="daily-head"><span>Today</span><strong id="goalText">0 / 20 XP</strong></div>
+            <div class="progress-track"><div class="progress-fill" id="goalFill"></div></div>
+          </div>
+          <div class="side-card">
+            <h3>Phrase of the day</h3>
+            <div class="phrase"><strong>Hegiddeera?</strong><span>How are you?</span></div>
+          </div>
+        </aside>
+      </main>
+
+      <nav class="mobile-nav" aria-label="Main navigation">
+        <button class="nav-item active"><b>⌂</b>Learn</button>
+        <button class="nav-item" data-toast="Practice unlocks after your first lesson"><b>◎</b>Practice</button>
+        <button class="nav-item" data-toast="Your profile is coming soon"><b>♙</b>Profile</button>
+      </nav>
+    </section>
+
+    <section class="lesson-view" id="lessonView" aria-live="polite">
+      <div class="learn-shell">
+        <div class="lesson-head">
+          <button class="icon-button" id="exitLesson" aria-label="Exit lesson">×</button>
+          <div class="lesson-progress" aria-label="Lesson progress"><div id="lessonProgress"></div></div>
+          <span class="stat hearts"><span class="stat-icon">♥</span><span id="lessonHearts">5</span></span>
+        </div>
+        <div id="questionArea" class="lesson-body"></div>
+      </div>
+      <div class="answer-bar" id="answerBar">
+        <div class="answer-inner">
+          <div class="feedback" id="feedback"></div>
+          <button class="primary" id="checkButton" disabled>Check</button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const questions = [
+      { type: 'choice', prompt: 'What does this greeting mean?', phrase: 'Namaskara', speech: 'ನಮಸ್ಕಾರ', hint: 'Tap the speaker to listen', choices: ['Goodbye', 'Hello', 'Please'], answer: 1 },
+      { type: 'choice', prompt: 'What are they asking?', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'A common, polite greeting', choices: ['Where are you going?', 'What is your name?', 'How are you?'], answer: 2 },
+      { type: 'arrange', prompt: 'Build: “I want coffee”', words: ['beku', 'Nanage', 'coffee'], answerText: 'Nanage coffee beku' },
+      { type: 'choice', prompt: 'Choose the natural reply', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'How are you?', choices: ['Chennagiddeeni', 'Nanage gothilla', 'Nale sigona'], answer: 0 },
+      { type: 'record', prompt: 'Say the phrase out loud', phrase: 'Swalpa nidhaanavaagi heli', speech: 'ಸ್ವಲ್ಪ ನಿಧಾನವಾಗಿ ಹೇಳಿ', hint: 'Please speak a little slowly' }
+    ];
+
+    const saved = JSON.parse(localStorage.getItem('kannolingo-progress') || '{}');
+    let xp = Number(saved.xp || 0);
+    let hearts = 5;
+    let current = 0;
+    let selected = null;
+    let checked = false;
+    let arranged = [];
+    let mediaRecorder;
+    let audioChunks = [];
+    let hasRecorded = false;
+
+    const $ = (id) => document.getElementById(id);
+    const dashboard = $('dashboard');
+    const lessonView = $('lessonView');
+    const checkButton = $('checkButton');
+    const feedback = $('feedback');
+
+    function save() {
+      localStorage.setItem('kannolingo-progress', JSON.stringify({ xp, completed: saved.completed || false }));
+    }
+
+    function updateStats() {
+      $('xpValue').textContent = xp + ' XP';
+      $('goalText').textContent = Math.min(xp, 20) + ' / 20 XP';
+      $('goalFill').style.width = Math.min(100, xp / 20 * 100) + '%';
+      $('heartValue').textContent = hearts;
+      $('lessonHearts').textContent = hearts;
+      if (saved.completed) {
+        $('startLesson').classList.add('done');
+        $('startLesson').textContent = '✓';
+      }
+    }
+
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return showToast('Audio is not supported in this browser');
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'kn-IN';
+      utterance.rate = .78;
+      speechSynthesis.speak(utterance);
+    }
+
+    function startLesson() {
+      current = 0; hearts = 5; selected = null; checked = false; arranged = [];
+      dashboard.classList.add('hidden');
+      lessonView.classList.add('active');
+      document.body.scrollTop = 0;
+      renderQuestion();
+    }
+
+    function exitLesson() {
+      speechSynthesis?.cancel();
+      lessonView.classList.remove('active');
+      dashboard.classList.remove('hidden');
+      updateStats();
+    }
+
+    function renderQuestion() {
+      selected = null; checked = false; arranged = []; hasRecorded = false;
+      feedback.className = 'feedback';
+      feedback.textContent = '';
+      checkButton.disabled = true;
+      checkButton.textContent = 'Check';
+      $('lessonProgress').style.width = (current / questions.length * 100) + '%';
+      const q = questions[current];
+      const area = $('questionArea');
+      let html = `<div class="question-count">Question ${current + 1} of ${questions.length}</div><h2>${q.prompt}</h2>`;
+      if (q.type === 'choice') {
+        html += `<div class="audio-card"><button class="audio-button" aria-label="Play phrase" data-speak>🔊</button><div><div class="phrase-text">${q.phrase}</div><div class="hint">${q.hint}</div></div></div>`;
+        html += `<div class="choices">${q.choices.map((c, i) => `<button class="choice" data-choice="${i}">${c}</button>`).join('')}</div>`;
+      } else if (q.type === 'arrange') {
+        html += `<div class="word-bank" id="wordBank"><span class="hint">Tap the words in the right order</span></div><div class="word-pool">${q.words.map((w, i) => `<button class="word" data-word="${i}">${w}</button>`).join('')}</div>`;
+      } else {
+        html += `<div class="audio-card"><button class="audio-button" aria-label="Play phrase" data-speak>🔊</button><div><div class="phrase-text">${q.phrase}</div><div class="hint">${q.hint}</div></div></div>`;
+        html += `<div class="record-card"><button class="record-orb" id="recordButton" aria-label="Start recording">●</button><p class="record-status" id="recordStatus">Tap to record yourself</p><div id="playback"></div></div>`;
+      }
+      area.innerHTML = html;
+      area.querySelector('[data-speak]')?.addEventListener('click', () => speak(q.speech));
+      area.querySelectorAll('[data-choice]').forEach(btn => btn.addEventListener('click', () => choose(btn)));
+      area.querySelectorAll('[data-word]').forEach(btn => btn.addEventListener('click', () => addWord(btn)));
+      $('recordButton')?.addEventListener('click', toggleRecording);
+    }
+
+    function choose(btn) {
+      if (checked) return;
+      document.querySelectorAll('.choice').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected'); selected = Number(btn.dataset.choice); checkButton.disabled = false;
+    }
+
+    function addWord(btn) {
+      if (checked) return;
+      arranged.push(btn.textContent); btn.classList.add('used');
+      $('wordBank').innerHTML = arranged.map((w, i) => `<button class="word" data-remove="${i}">${w}</button>`).join('') || '<span class="hint">Tap the words in the right order</span>';
+      $('wordBank').querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => removeWord(Number(b.dataset.remove))));
+      checkButton.disabled = arranged.length !== questions[current].words.length;
+    }
+
+    function removeWord(index) {
+      if (checked) return;
+      const word = arranged[index]; arranged.splice(index, 1);
+      const pool = [...document.querySelectorAll('[data-word]')];
+      pool.find(b => b.textContent === word && b.classList.contains('used'))?.classList.remove('used');
+      $('wordBank').innerHTML = arranged.map((w, i) => `<button class="word" data-remove="${i}">${w}</button>`).join('') || '<span class="hint">Tap the words in the right order</span>';
+      $('wordBank').querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => removeWord(Number(b.dataset.remove))));
+      checkButton.disabled = true;
+    }
+
+    async function toggleRecording() {
+      const btn = $('recordButton');
+      if (mediaRecorder?.state === 'recording') { mediaRecorder.stop(); return; }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        hasRecorded = true; checkButton.disabled = false; $('recordStatus').textContent = 'Recording is unavailable — practise aloud, then continue'; return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          const url = URL.createObjectURL(new Blob(audioChunks, { type: mediaRecorder.mimeType }));
+          $('playback').innerHTML = `<audio controls src="${url}" aria-label="Your recording"></audio>`;
+          $('recordStatus').textContent = 'Nice! Listen back or continue.';
+          btn.classList.remove('recording'); btn.textContent = '●';
+          stream.getTracks().forEach(t => t.stop());
+          hasRecorded = true; checkButton.disabled = false;
+        };
+        mediaRecorder.start(); btn.classList.add('recording'); btn.textContent = '■';
+        $('recordStatus').textContent = 'Recording… tap to stop';
+      } catch { $('recordStatus').textContent = 'Microphone blocked — say it aloud, then continue'; hasRecorded = true; checkButton.disabled = false; }
+    }
+
+    function checkAnswer() {
+      if (checked) { nextQuestion(); return; }
+      const q = questions[current];
+      let correct = q.type === 'record' ? hasRecorded : q.type === 'arrange' ? arranged.join(' ') === q.answerText : selected === q.answer;
+      checked = true;
+      if (correct) {
+        feedback.textContent = q.type === 'record' ? 'Great speaking practice!' : 'Correct! Chennagide!';
+        feedback.className = 'feedback show good';
+        xp += 4;
+      } else {
+        hearts = Math.max(0, hearts - 1);
+        feedback.textContent = q.type === 'arrange' ? `Correct answer: ${q.answerText}` : `Correct answer: ${q.choices[q.answer]}`;
+        feedback.className = 'feedback show bad';
+      }
+      if (q.type === 'choice') {
+        document.querySelectorAll('.choice').forEach((b, i) => {
+          if (i === q.answer) b.classList.add('correct');
+          else if (i === selected) b.classList.add('wrong');
+        });
+      }
+      $('lessonHearts').textContent = hearts;
+      checkButton.textContent = current === questions.length - 1 ? 'Finish' : 'Continue';
+      checkButton.disabled = false;
+      save();
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current >= questions.length) return showComplete();
+      renderQuestion();
+    }
+
+    function showComplete() {
+      saved.completed = true; xp = Math.max(xp, 20); save();
+      $('lessonProgress').style.width = '100%';
+      $('questionArea').innerHTML = `<div class="complete"><div class="complete-badge">★</div><h2>Lesson complete!</h2><p>You can now start a friendly conversation in Kannada.</p><div class="rewards"><div class="reward"><strong>+20</strong><span>XP earned</span></div><div class="reward"><strong>${hearts}</strong><span>hearts left</span></div><div class="reward"><strong>5</strong><span>phrases</span></div></div><button class="primary" id="returnHome">Back to path</button></div>`;
+      $('answerBar').style.display = 'none';
+      $('returnHome').addEventListener('click', () => { $('answerBar').style.display = ''; exitLesson(); });
+    }
+
+    function showToast(message) {
+      const toast = $('toast'); toast.textContent = message; toast.classList.add('show');
+      clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    $('startLesson').addEventListener('click', startLesson);
+    $('exitLesson').addEventListener('click', exitLesson);
+    checkButton.addEventListener('click', checkAnswer);
+    document.querySelectorAll('[data-toast]').forEach(b => b.addEventListener('click', () => showToast(b.dataset.toast)));
+    updateStats();
+
+    if (document.modelContext?.registerTool) {
+      document.modelContext.registerTool({
+        name: 'start_greetings_lesson',
+        title: 'Start greetings lesson',
+        description: 'Open the first spoken Kannada lesson and show its first exercise.',
+        inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+        annotations: { readOnlyHint: false, untrustedContentHint: false },
+        execute(input) {
+          if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) {
+            throw new TypeError('This tool does not accept any input fields.');
+          }
+          startLesson();
+          return { lesson: 'Greetings', question: 1, totalQuestions: questions.length };
+        }
+      });
+    }
+  </script>
+</body>
+</html>
