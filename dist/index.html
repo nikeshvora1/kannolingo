@@ -52,6 +52,10 @@
     .brand { display: flex; align-items: center; gap: 11px; font-size: 1.25rem; font-weight: 900; letter-spacing: -.03em; }
     .brand-mark { width: 42px; height: 42px; border-radius: 14px; background: var(--purple); color: #fff; display: grid; place-items: center; box-shadow: 0 5px 0 #4f39bb; font-size: 1.2rem; }
     .top-stats { margin-left: auto; display: flex; align-items: center; gap: 20px; font-weight: 800; }
+    .desktop-nav { display: flex; gap: 6px; margin-left: 38px; }
+    .nav-tab { border: 0; background: transparent; color: var(--muted); padding: 10px 14px; border-radius: 12px; font-weight: 850; cursor: pointer; }
+    .nav-tab:hover { background: var(--purple-soft); color: var(--purple-dark); }
+    .nav-tab.active { background: var(--purple-soft); color: var(--purple-dark); }
     .stat { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
     .stat-icon { font-size: 1.25rem; }
     .stat.streak { color: #ed8b23; }
@@ -91,6 +95,42 @@
     .phrase { padding: 14px; background: var(--purple-soft); border-radius: 14px; }
     .phrase strong { display: block; color: var(--purple-dark); }
     .phrase span { color: var(--muted); font-size: .9rem; }
+
+    .content-view { display: none; }
+    .content-view.active { display: block; }
+    .section-title { margin-bottom: 24px; }
+    .section-title h1 { margin-bottom: 10px; }
+    .section-title p { color: var(--muted); margin: 0; }
+    .practice-hero { color: #fff; background: linear-gradient(135deg, #7057e8, #4f39bb); border-radius: 26px; padding: 28px; box-shadow: var(--shadow); overflow: hidden; position: relative; }
+    .practice-hero::after { content: "◎"; position: absolute; right: 22px; top: -34px; color: rgba(255,255,255,.12); font-size: 10rem; font-weight: 900; }
+    .practice-hero h2 { position: relative; margin: 0 0 8px; font-size: 1.55rem; z-index: 1; }
+    .practice-hero p { position: relative; color: rgba(255,255,255,.78); max-width: 430px; margin: 0 0 24px; z-index: 1; }
+    .practice-hero .primary { position: relative; background: #fff; color: var(--purple-dark); box-shadow: 0 5px 0 rgba(32,20,85,.35); z-index: 1; }
+    .phrase-list { display: grid; gap: 12px; margin-top: 26px; }
+    .phrase-row { background: #fff; border: 2px solid var(--line); border-radius: 17px; padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; }
+    .phrase-row strong { display: block; }
+    .phrase-row span { color: var(--muted); font-size: .88rem; }
+    .mastery { width: 92px; }
+    .mastery small { display: block; color: var(--muted); text-align: right; margin-bottom: 5px; }
+    .mini-track { height: 8px; border-radius: 10px; background: #ece9f4; overflow: hidden; }
+    .mini-track i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
+    .empty-practice { text-align: center; padding: 34px 20px; background: #fff; border: 2px dashed var(--line); border-radius: 20px; color: var(--muted); }
+    .profile-card { background: #fff; border: 2px solid var(--line); border-radius: 24px; padding: 24px; }
+    .profile-head { display: flex; align-items: center; gap: 18px; }
+    .avatar { width: 76px; height: 76px; border-radius: 24px; background: var(--purple-soft); color: var(--purple); display: grid; place-items: center; font-size: 2.2rem; font-weight: 900; }
+    .profile-head h2 { margin: 0 0 4px; }
+    .profile-head p { margin: 0; color: var(--muted); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 22px 0; }
+    .big-stat { background: var(--paper); border-radius: 17px; padding: 18px 12px; text-align: center; }
+    .big-stat strong { display: block; font-size: 1.5rem; }
+    .big-stat span { color: var(--muted); font-size: .82rem; }
+    .achievement-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+    .achievement { border: 2px solid var(--line); border-radius: 17px; padding: 16px; display: flex; gap: 12px; align-items: center; }
+    .achievement.locked { opacity: .48; filter: grayscale(1); }
+    .achievement b { font-size: 1.7rem; }
+    .achievement strong, .achievement span { display: block; }
+    .achievement span { color: var(--muted); font-size: .82rem; }
+    .secondary { border: 2px solid var(--line); border-bottom-width: 5px; border-radius: 14px; background: #fff; color: var(--muted); padding: 11px 16px; font-weight: 850; cursor: pointer; }
 
     .lesson-view { display: none; min-height: calc(100vh - 76px); background: #fff; }
     .lesson-view.active { display: block; }
@@ -152,6 +192,7 @@
       .brand span:last-child { display: none; }
       .brand-mark { width: 39px; height: 39px; }
       .top-stats { gap: 13px; font-size: .92rem; }
+      .desktop-nav { display: none; }
       .stat.xp { display: none; }
       main { width: min(100% - 28px, 620px); grid-template-columns: 1fr; padding-top: 30px; }
       .side { display: none; }
@@ -169,6 +210,10 @@
       .lesson-body { padding-top: 38px; }
       .rewards { gap: 8px; }
       .reward { padding: 14px 4px; }
+      .stats-grid { gap: 8px; }
+      .big-stat { padding: 14px 5px; }
+      .achievement-grid { grid-template-columns: 1fr; }
+      .practice-hero { padding: 24px 20px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
@@ -178,6 +223,11 @@
     <section class="dashboard" id="dashboard">
       <header class="topbar">
         <div class="brand"><span class="brand-mark">K</span><span>Kannolingo</span></div>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <button class="nav-tab active" data-view="learn">Learn</button>
+          <button class="nav-tab" data-view="practice">Practice</button>
+          <button class="nav-tab" data-view="profile">Profile</button>
+        </nav>
         <div class="top-stats" aria-label="Your progress">
           <span class="stat streak"><span class="stat-icon">🔥</span><span id="streakValue">1</span></span>
           <span class="stat xp"><span class="stat-icon">⚡</span><span id="xpValue">0 XP</span></span>
@@ -187,6 +237,7 @@
 
       <main>
         <div>
+          <section class="content-view active" id="learnContent">
           <div class="welcome">
             <p class="eyebrow">Your Kannada journey</p>
             <h1>Speak your first words today.</h1>
@@ -200,22 +251,50 @@
 
           <div class="path" aria-label="Lesson path">
             <div class="lesson-row">
-              <button class="lesson-node" id="startLesson" aria-label="Start Greetings lesson">👋</button>
+              <button class="lesson-node" id="lessonNode0" data-lesson="greetings" aria-label="Start Greetings lesson">👋</button>
               <div class="lesson-label"><strong>Greetings</strong><span>5 quick exercises</span></div>
             </div>
             <div class="lesson-row">
-              <button class="lesson-node locked" aria-label="Introductions lesson, locked" disabled>🔒</button>
+              <button class="lesson-node locked" id="lessonNode1" data-lesson="introductions" aria-label="Introductions lesson, locked" disabled>🔒</button>
               <div class="lesson-label"><strong>Introductions</strong><span>Complete Greetings first</span></div>
             </div>
             <div class="lesson-row">
-              <button class="lesson-node locked" aria-label="Polite words lesson, locked" disabled>🔒</button>
+              <button class="lesson-node locked" id="lessonNode2" data-lesson="polite" aria-label="Polite words lesson, locked" disabled>🔒</button>
               <div class="lesson-label"><strong>Polite words</strong><span>Locked</span></div>
             </div>
             <div class="lesson-row">
-              <button class="lesson-node locked" aria-label="First checkpoint, locked" disabled>🏆</button>
+              <button class="lesson-node locked" id="checkpointNode" data-lesson="checkpoint" aria-label="First checkpoint, locked" disabled>🏆</button>
               <div class="lesson-label"><strong>First checkpoint</strong><span>Milestone challenge</span></div>
             </div>
           </div>
+          </section>
+
+          <section class="content-view" id="practiceContent">
+            <div class="section-title"><p class="eyebrow">Smart review</p><h1>Keep phrases fresh.</h1><p>A quick mix of words you have already learned.</p></div>
+            <div class="practice-hero">
+              <h2>Daily practice</h2>
+              <p id="practiceCopy">Finish your first lesson to unlock personalised review.</p>
+              <button class="primary" id="startPractice" disabled>Start practice</button>
+            </div>
+            <div class="phrase-list" id="practicePhrases"></div>
+          </section>
+
+          <section class="content-view" id="profileContent">
+            <div class="section-title"><p class="eyebrow">Your progress</p><h1>A little Kannada every day.</h1><p>Everything you have learned stays on this device.</p></div>
+            <div class="profile-card">
+              <div class="profile-head"><div class="avatar">K</div><div><h2>Kannada learner</h2><p id="profileLevel">Getting started</p></div></div>
+              <div class="stats-grid">
+                <div class="big-stat"><strong id="profileXp">0</strong><span>Total XP</span></div>
+                <div class="big-stat"><strong id="profileLessons">0</strong><span>Lessons</span></div>
+                <div class="big-stat"><strong id="profileStreak">1</strong><span>Day streak</span></div>
+              </div>
+              <h3>Achievements</h3>
+              <div class="achievement-grid">
+                <div class="achievement locked" id="achievementFirst"><b>👋</b><div><strong>First words</strong><span>Finish one lesson</span></div></div>
+                <div class="achievement locked" id="achievementMilestone"><b>🏆</b><div><strong>Conversation ready</strong><span>Pass the checkpoint</span></div></div>
+              </div>
+            </div>
+          </section>
         </div>
 
         <aside class="side">
@@ -232,9 +311,9 @@
       </main>
 
       <nav class="mobile-nav" aria-label="Main navigation">
-        <button class="nav-item active"><b>⌂</b>Learn</button>
-        <button class="nav-item" data-toast="Practice unlocks after your first lesson"><b>◎</b>Practice</button>
-        <button class="nav-item" data-toast="Your profile is coming soon"><b>♙</b>Profile</button>
+        <button class="nav-item active" data-view="learn"><b>⌂</b>Learn</button>
+        <button class="nav-item" data-view="practice"><b>◎</b>Practice</button>
+        <button class="nav-item" data-view="profile"><b>♙</b>Profile</button>
       </nav>
     </section>
 
@@ -258,18 +337,68 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script>
-    const questions = [
-      { type: 'choice', prompt: 'What does this greeting mean?', phrase: 'Namaskara', speech: 'ನಮಸ್ಕಾರ', hint: 'Tap the speaker to listen', choices: ['Goodbye', 'Hello', 'Please'], answer: 1 },
-      { type: 'choice', prompt: 'What are they asking?', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'A common, polite greeting', choices: ['Where are you going?', 'What is your name?', 'How are you?'], answer: 2 },
-      { type: 'arrange', prompt: 'Build: “I want coffee”', words: ['beku', 'Nanage', 'coffee'], answerText: 'Nanage coffee beku' },
-      { type: 'choice', prompt: 'Choose the natural reply', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'How are you?', choices: ['Chennagiddeeni', 'Nanage gothilla', 'Nale sigona'], answer: 0 },
-      { type: 'record', prompt: 'Say the phrase out loud', phrase: 'Swalpa nidhaanavaagi heli', speech: 'ಸ್ವಲ್ಪ ನಿಧಾನವಾಗಿ ಹೇಳಿ', hint: 'Please speak a little slowly' }
-    ];
+    const lessons = {
+      greetings: {
+        title: 'Greetings', icon: '👋', completion: 'You can now start a friendly conversation in Kannada.',
+        questions: [
+          { type: 'choice', prompt: 'What does this greeting mean?', phrase: 'Namaskara', speech: 'ನಮಸ್ಕಾರ', hint: 'A friendly greeting', choices: ['Goodbye', 'Hello', 'Please'], answer: 1 },
+          { type: 'choice', prompt: 'What are they asking?', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'A polite everyday greeting', choices: ['Where are you going?', 'What is your name?', 'How are you?'], answer: 2 },
+          { type: 'arrange', prompt: 'Build: “I am fine”', words: ['iddeeni', 'Chennagi'], answerText: 'Chennagi iddeeni' },
+          { type: 'choice', prompt: 'Choose the natural reply', phrase: 'Hegiddeera?', speech: 'ಹೇಗಿದ್ದೀರಾ?', hint: 'How are you?', choices: ['Chennagiddeeni', 'Nanage gothilla', 'Nale sigona'], answer: 0 },
+          { type: 'record', prompt: 'Say the greeting out loud', phrase: 'Namaskara, hegiddeera?', speech: 'ನಮಸ್ಕಾರ, ಹೇಗಿದ್ದೀರಾ?', hint: 'Hello, how are you?' }
+        ]
+      },
+      introductions: {
+        title: 'Introductions', icon: '🙂', completion: 'You can introduce yourself and ask someone their name.',
+        questions: [
+          { type: 'choice', prompt: 'What does this mean?', phrase: 'Nanna hesaru Maya', speech: 'ನನ್ನ ಹೆಸರು ಮಾಯಾ', hint: 'A simple introduction', choices: ['I am from Mysuru', 'My name is Maya', 'This is Maya'], answer: 1 },
+          { type: 'arrange', prompt: 'Build: “My name is Ravi”', words: ['Ravi', 'hesaru', 'Nanna'], answerText: 'Nanna hesaru Ravi' },
+          { type: 'choice', prompt: 'What are they asking?', phrase: 'Nimma hesarenu?', speech: 'ನಿಮ್ಮ ಹೆಸರೇನು?', hint: 'Use this with someone new', choices: ['What is your name?', 'Where do you live?', 'How are you?'], answer: 0 },
+          { type: 'choice', prompt: 'Choose the right reply', phrase: 'Nimma hesarenu?', speech: 'ನಿಮ್ಮ ಹೆಸರೇನು?', hint: 'What is your name?', choices: ['Chennagide', 'Nanna hesaru Asha', 'Parvaagilla'], answer: 1 },
+          { type: 'record', prompt: 'Introduce yourself', phrase: 'Nanna hesaru…', speech: 'ನನ್ನ ಹೆಸರು', hint: 'My name is… Add your own name.' }
+        ]
+      },
+      polite: {
+        title: 'Polite words', icon: '✨', completion: 'You have the essential words for a polite everyday exchange.',
+        questions: [
+          { type: 'choice', prompt: 'Pick the casual meaning', phrase: 'Parvaagilla', speech: 'ಪರವಾಗಿಲ್ಲ', hint: 'A very useful everyday reply', choices: ['No problem', 'I do not know', 'See you tomorrow'], answer: 0 },
+          { type: 'choice', prompt: 'What does this mean?', phrase: 'Nanage gothilla', speech: 'ನನಗೆ ಗೊತ್ತಿಲ್ಲ', hint: 'Useful when you are unsure', choices: ['I do not know', 'I do not want it', 'I cannot come'], answer: 0 },
+          { type: 'arrange', prompt: 'Build: “Please speak slowly”', words: ['heli', 'nidhaanavaagi', 'Swalpa'], answerText: 'Swalpa nidhaanavaagi heli' },
+          { type: 'choice', prompt: 'Someone helps you. What do you say?', phrase: 'Thank you', speech: 'ಧನ್ಯವಾದ', hint: 'Choose the Kannada phrase', choices: ['Kshamisi', 'Dhanyavaada', 'Gothilla'], answer: 1 },
+          { type: 'record', prompt: 'Ask them to slow down', phrase: 'Swalpa nidhaanavaagi heli', speech: 'ಸ್ವಲ್ಪ ನಿಧಾನವಾಗಿ ಹೇಳಿ', hint: 'Please speak a little slowly' }
+        ]
+      },
+      checkpoint: {
+        title: 'First checkpoint', icon: '🏆', completion: 'Milestone complete — you are ready for a first conversation!',
+        questions: [
+          { type: 'choice', prompt: 'Choose the friendly opener', phrase: 'You meet someone new', speech: 'ನಮಸ್ಕಾರ', hint: 'How would you begin?', choices: ['Namaskara', 'Gothilla', 'Parvaagilla'], answer: 0 },
+          { type: 'choice', prompt: 'What does this mean?', phrase: 'Nimma hesarenu?', speech: 'ನಿಮ್ಮ ಹೆಸರೇನು?', hint: 'Listen and remember', choices: ['Are you okay?', 'What is your name?', 'Where are you going?'], answer: 1 },
+          { type: 'arrange', prompt: 'Build your reply', words: ['hesaru', 'Leela', 'Nanna'], answerText: 'Nanna hesaru Leela' },
+          { type: 'choice', prompt: 'Say “I do not know”', phrase: 'Pick the useful phrase', speech: 'ನನಗೆ ಗೊತ್ತಿಲ್ಲ', hint: 'Colloquial Kannada', choices: ['Nanage gothilla', 'Chennagiddeeni', 'Nale sigona'], answer: 0 },
+          { type: 'arrange', prompt: 'Ask them to speak slowly', words: ['heli', 'Swalpa', 'nidhaanavaagi'], answerText: 'Swalpa nidhaanavaagi heli' },
+          { type: 'choice', prompt: 'Choose the reassuring reply', phrase: 'No problem', speech: 'ಪರವಾಗಿಲ್ಲ', hint: 'You will hear this often', choices: ['Dhanyavaada', 'Parvaagilla', 'Namaskara'], answer: 1 },
+          { type: 'record', prompt: 'Finish with a mini introduction', phrase: 'Namaskara, nanna hesaru…', speech: 'ನಮಸ್ಕಾರ, ನನ್ನ ಹೆಸರು', hint: 'Hello, my name is…' }
+        ]
+      }
+    };
 
-    const saved = JSON.parse(localStorage.getItem('kannolingo-progress') || '{}');
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem('kannolingo-progress') || '{}'); } catch { saved = {}; }
+    const lessonOrder = ['greetings', 'introductions', 'polite'];
+    if (!Array.isArray(saved.completedLessons)) saved.completedLessons = saved.completed ? ['greetings'] : [];
+    saved.mastery = saved.mastery && typeof saved.mastery === 'object' ? saved.mastery : {};
+    saved.streak = Number(saved.streak || 1);
+    saved.practiceCount = Number(saved.practiceCount || 0);
+    const today = new Date().toLocaleDateString('en-CA');
+    if (saved.xpDate !== today) { saved.todayXp = 0; saved.xpDate = today; }
     let xp = Number(saved.xp || 0);
     let hearts = 5;
     let current = 0;
+    let activeKey = 'greetings';
+    let currentQuestions = lessons.greetings.questions;
+    let sessionMode = 'lesson';
+    let sessionXp = 0;
+    let correctCount = 0;
     let selected = null;
     let checked = false;
     let arranged = [];
@@ -284,19 +413,63 @@
     const feedback = $('feedback');
 
     function save() {
-      localStorage.setItem('kannolingo-progress', JSON.stringify({ xp, completed: saved.completed || false }));
+      saved.xp = xp;
+      localStorage.setItem('kannolingo-progress', JSON.stringify(saved));
     }
 
     function updateStats() {
       $('xpValue').textContent = xp + ' XP';
-      $('goalText').textContent = Math.min(xp, 20) + ' / 20 XP';
-      $('goalFill').style.width = Math.min(100, xp / 20 * 100) + '%';
+      $('streakValue').textContent = saved.streak;
+      $('goalText').textContent = Math.min(saved.todayXp || 0, 20) + ' / 20 XP';
+      $('goalFill').style.width = Math.min(100, (saved.todayXp || 0) / 20 * 100) + '%';
       $('heartValue').textContent = hearts;
       $('lessonHearts').textContent = hearts;
-      if (saved.completed) {
-        $('startLesson').classList.add('done');
-        $('startLesson').textContent = '✓';
-      }
+      updatePath();
+      updatePractice();
+      updateProfile();
+    }
+
+    function updatePath() {
+      lessonOrder.forEach((key, index) => {
+        const node = $('lessonNode' + index);
+        const isDone = saved.completedLessons.includes(key);
+        const isOpen = index === 0 || saved.completedLessons.includes(lessonOrder[index - 1]);
+        node.disabled = !isOpen;
+        node.classList.toggle('locked', !isOpen);
+        node.classList.toggle('done', isDone);
+        node.textContent = isDone ? '✓' : isOpen ? lessons[key].icon : '🔒';
+        node.setAttribute('aria-label', `${isDone ? 'Replay' : isOpen ? 'Start' : 'Locked'} ${lessons[key].title} lesson`);
+        const note = node.parentElement.querySelector('.lesson-label span');
+        note.textContent = isDone ? 'Completed · replay anytime' : isOpen ? '5 quick exercises' : `Complete ${lessons[lessonOrder[index - 1]].title} first`;
+      });
+      const checkpointOpen = lessonOrder.every(key => saved.completedLessons.includes(key));
+      const checkpointDone = Boolean(saved.checkpointComplete);
+      $('checkpointNode').disabled = !checkpointOpen;
+      $('checkpointNode').classList.toggle('locked', !checkpointOpen);
+      $('checkpointNode').classList.toggle('done', checkpointDone);
+      $('checkpointNode').textContent = checkpointDone ? '✓' : checkpointOpen ? '🏆' : '🔒';
+      $('checkpointNode').parentElement.querySelector('.lesson-label span').textContent = checkpointDone ? 'Milestone completed' : checkpointOpen ? '7-question challenge' : 'Complete all three lessons';
+    }
+
+    function updatePractice() {
+      const unlocked = saved.completedLessons.length > 0;
+      $('startPractice').disabled = !unlocked;
+      $('practiceCopy').textContent = unlocked ? `Review ${saved.completedLessons.length * 5} phrases from completed lessons.` : 'Finish your first lesson to unlock personalised review.';
+      const learned = saved.completedLessons.flatMap(key => lessons[key].questions).filter(q => q.phrase && q.type !== 'record');
+      $('practicePhrases').innerHTML = learned.length ? learned.slice(0, 5).map(q => {
+        const value = saved.mastery[q.phrase] || 40;
+        return `<div class="phrase-row"><div><strong>${q.phrase}</strong><span>${q.hint}</span></div><div class="mastery"><small>${value}%</small><div class="mini-track"><i style="width:${value}%"></i></div></div></div>`;
+      }).join('') : '<div class="empty-practice">Your learned phrases will appear here.</div>';
+    }
+
+    function updateProfile() {
+      const count = saved.completedLessons.length + (saved.checkpointComplete ? 1 : 0);
+      $('profileXp').textContent = xp;
+      $('profileLessons').textContent = count;
+      $('profileStreak').textContent = saved.streak;
+      $('profileLevel').textContent = saved.checkpointComplete ? 'First milestone complete' : count ? `${count} session${count === 1 ? '' : 's'} completed` : 'Getting started';
+      $('achievementFirst').classList.toggle('locked', !count);
+      $('achievementMilestone').classList.toggle('locked', !saved.checkpointComplete);
     }
 
     function speak(text) {
@@ -308,12 +481,27 @@
       speechSynthesis.speak(utterance);
     }
 
-    function startLesson() {
-      current = 0; hearts = 5; selected = null; checked = false; arranged = [];
+    function startLesson(key, mode = 'lesson') {
+      if (!lessons[key]) return;
+      activeKey = key;
+      currentQuestions = lessons[key].questions;
+      sessionMode = mode;
+      sessionXp = 0; correctCount = 0; current = 0; hearts = 5; selected = null; checked = false; arranged = [];
       dashboard.classList.add('hidden');
       lessonView.classList.add('active');
-      document.body.scrollTop = 0;
+      $('answerBar').style.display = '';
+      window.scrollTo(0, 0);
       renderQuestion();
+    }
+
+    function buildPractice() {
+      const source = saved.completedLessons.flatMap(key => lessons[key].questions).filter(q => q.type !== 'record');
+      if (!source.length) return showToast('Complete a lesson first');
+      const pool = source.map(q => ({ ...q }));
+      while (pool.length < 5) pool.push({ ...source[pool.length % source.length] });
+      currentQuestions = pool.sort((a, b) => (a.phrase || a.answerText).localeCompare(b.phrase || b.answerText)).slice(0, 5);
+      activeKey = 'practice'; sessionMode = 'practice'; sessionXp = 0; correctCount = 0; current = 0; hearts = 5;
+      dashboard.classList.add('hidden'); lessonView.classList.add('active'); $('answerBar').style.display = ''; window.scrollTo(0, 0); renderQuestion();
     }
 
     function exitLesson() {
@@ -329,10 +517,10 @@
       feedback.textContent = '';
       checkButton.disabled = true;
       checkButton.textContent = 'Check';
-      $('lessonProgress').style.width = (current / questions.length * 100) + '%';
-      const q = questions[current];
+      $('lessonProgress').style.width = (current / currentQuestions.length * 100) + '%';
+      const q = currentQuestions[current];
       const area = $('questionArea');
-      let html = `<div class="question-count">Question ${current + 1} of ${questions.length}</div><h2>${q.prompt}</h2>`;
+      let html = `<div class="question-count">${sessionMode === 'practice' ? 'Practice' : lessons[activeKey].title} · ${current + 1} of ${currentQuestions.length}</div><h2>${q.prompt}</h2>`;
       if (q.type === 'choice') {
         html += `<div class="audio-card"><button class="audio-button" aria-label="Play phrase" data-speak>🔊</button><div><div class="phrase-text">${q.phrase}</div><div class="hint">${q.hint}</div></div></div>`;
         html += `<div class="choices">${q.choices.map((c, i) => `<button class="choice" data-choice="${i}">${c}</button>`).join('')}</div>`;
@@ -340,13 +528,14 @@
         html += `<div class="word-bank" id="wordBank"><span class="hint">Tap the words in the right order</span></div><div class="word-pool">${q.words.map((w, i) => `<button class="word" data-word="${i}">${w}</button>`).join('')}</div>`;
       } else {
         html += `<div class="audio-card"><button class="audio-button" aria-label="Play phrase" data-speak>🔊</button><div><div class="phrase-text">${q.phrase}</div><div class="hint">${q.hint}</div></div></div>`;
-        html += `<div class="record-card"><button class="record-orb" id="recordButton" aria-label="Start recording">●</button><p class="record-status" id="recordStatus">Tap to record yourself</p><div id="playback"></div></div>`;
+        html += `<div class="record-card"><button class="record-orb" id="recordButton" aria-label="Start recording">●</button><p class="record-status" id="recordStatus">Tap to record yourself</p><div id="playback"></div><p><button class="secondary" id="speakAloudButton">I practised aloud</button></p></div>`;
       }
       area.innerHTML = html;
       area.querySelector('[data-speak]')?.addEventListener('click', () => speak(q.speech));
       area.querySelectorAll('[data-choice]').forEach(btn => btn.addEventListener('click', () => choose(btn)));
       area.querySelectorAll('[data-word]').forEach(btn => btn.addEventListener('click', () => addWord(btn)));
       $('recordButton')?.addEventListener('click', toggleRecording);
+      $('speakAloudButton')?.addEventListener('click', () => { hasRecorded = true; checkButton.disabled = false; $('recordStatus').textContent = 'Nice — speaking out loud counts!'; });
     }
 
     function choose(btn) {
@@ -360,7 +549,7 @@
       arranged.push(btn.textContent); btn.classList.add('used');
       $('wordBank').innerHTML = arranged.map((w, i) => `<button class="word" data-remove="${i}">${w}</button>`).join('') || '<span class="hint">Tap the words in the right order</span>';
       $('wordBank').querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => removeWord(Number(b.dataset.remove))));
-      checkButton.disabled = arranged.length !== questions[current].words.length;
+      checkButton.disabled = arranged.length !== currentQuestions[current].words.length;
     }
 
     function removeWord(index) {
@@ -399,15 +588,21 @@
 
     function checkAnswer() {
       if (checked) { nextQuestion(); return; }
-      const q = questions[current];
+      const q = currentQuestions[current];
       let correct = q.type === 'record' ? hasRecorded : q.type === 'arrange' ? arranged.join(' ') === q.answerText : selected === q.answer;
       checked = true;
       if (correct) {
         feedback.textContent = q.type === 'record' ? 'Great speaking practice!' : 'Correct! Chennagide!';
         feedback.className = 'feedback show good';
-        xp += 4;
+        const gained = sessionMode === 'practice' ? 3 : activeKey === 'checkpoint' ? 5 : 4;
+        xp += gained; sessionXp += gained; correctCount++;
+        saved.todayXp = Number(saved.todayXp || 0) + gained;
+        const masteryKey = q.phrase || q.answerText;
+        saved.mastery[masteryKey] = Math.min(100, Number(saved.mastery[masteryKey] || 35) + 15);
       } else {
         hearts = Math.max(0, hearts - 1);
+        const masteryKey = q.phrase || q.answerText;
+        saved.mastery[masteryKey] = Math.max(15, Number(saved.mastery[masteryKey] || 40) - 10);
         feedback.textContent = q.type === 'arrange' ? `Correct answer: ${q.answerText}` : `Correct answer: ${q.choices[q.answer]}`;
         feedback.className = 'feedback show bad';
       }
@@ -418,23 +613,43 @@
         });
       }
       $('lessonHearts').textContent = hearts;
-      checkButton.textContent = current === questions.length - 1 ? 'Finish' : 'Continue';
+      checkButton.textContent = current === currentQuestions.length - 1 ? 'Finish' : 'Continue';
       checkButton.disabled = false;
       save();
     }
 
     function nextQuestion() {
       current++;
-      if (current >= questions.length) return showComplete();
+      if (current >= currentQuestions.length) return showComplete();
       renderQuestion();
     }
 
     function showComplete() {
-      saved.completed = true; xp = Math.max(xp, 20); save();
+      if (sessionMode === 'practice') saved.practiceCount++;
+      else if (activeKey === 'checkpoint') saved.checkpointComplete = true;
+      else if (!saved.completedLessons.includes(activeKey)) saved.completedLessons.push(activeKey);
+      markActiveDay();
+      save();
       $('lessonProgress').style.width = '100%';
-      $('questionArea').innerHTML = `<div class="complete"><div class="complete-badge">★</div><h2>Lesson complete!</h2><p>You can now start a friendly conversation in Kannada.</p><div class="rewards"><div class="reward"><strong>+20</strong><span>XP earned</span></div><div class="reward"><strong>${hearts}</strong><span>hearts left</span></div><div class="reward"><strong>5</strong><span>phrases</span></div></div><button class="primary" id="returnHome">Back to path</button></div>`;
+      const title = sessionMode === 'practice' ? 'Practice complete!' : activeKey === 'checkpoint' ? 'Milestone complete!' : 'Lesson complete!';
+      const message = sessionMode === 'practice' ? 'Those phrases are stronger now.' : lessons[activeKey].completion;
+      $('questionArea').innerHTML = `<div class="complete"><div class="complete-badge">${activeKey === 'checkpoint' ? '🏆' : '★'}</div><h2>${title}</h2><p>${message}</p><div class="rewards"><div class="reward"><strong>+${sessionXp}</strong><span>XP earned</span></div><div class="reward"><strong>${hearts}</strong><span>hearts left</span></div><div class="reward"><strong>${correctCount}/${currentQuestions.length}</strong><span>correct</span></div></div><button class="primary" id="returnHome">${sessionMode === 'practice' ? 'Back to practice' : 'Back to path'}</button></div>`;
       $('answerBar').style.display = 'none';
-      $('returnHome').addEventListener('click', () => { $('answerBar').style.display = ''; exitLesson(); });
+      $('returnHome').addEventListener('click', () => { $('answerBar').style.display = ''; exitLesson(); showView(sessionMode === 'practice' ? 'practice' : 'learn'); });
+    }
+
+    function markActiveDay() {
+      if (saved.lastActive === today) return;
+      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayKey = yesterday.toLocaleDateString('en-CA');
+      saved.streak = saved.lastActive === yesterdayKey ? saved.streak + 1 : 1;
+      saved.lastActive = today;
+    }
+
+    function showView(view) {
+      document.querySelectorAll('.content-view').forEach(el => el.classList.toggle('active', el.id === view + 'Content'));
+      document.querySelectorAll('[data-view]').forEach(el => el.classList.toggle('active', el.dataset.view === view));
+      window.scrollTo(0, 0);
     }
 
     function showToast(message) {
@@ -442,25 +657,37 @@
       clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
-    $('startLesson').addEventListener('click', startLesson);
+    document.querySelectorAll('[data-lesson]').forEach(node => node.addEventListener('click', () => startLesson(node.dataset.lesson)));
+    document.querySelectorAll('[data-view]').forEach(node => node.addEventListener('click', () => showView(node.dataset.view)));
+    $('startPractice').addEventListener('click', buildPractice);
     $('exitLesson').addEventListener('click', exitLesson);
     checkButton.addEventListener('click', checkAnswer);
-    document.querySelectorAll('[data-toast]').forEach(b => b.addEventListener('click', () => showToast(b.dataset.toast)));
     updateStats();
 
     if (document.modelContext?.registerTool) {
       document.modelContext.registerTool({
-        name: 'start_greetings_lesson',
-        title: 'Start greetings lesson',
-        description: 'Open the first spoken Kannada lesson and show its first exercise.',
+        name: 'start_kannada_lesson',
+        title: 'Start a Kannada lesson',
+        description: 'Open an available spoken Kannada lesson and show its first exercise.',
+        inputSchema: { type: 'object', properties: { lesson: { type: 'string', enum: ['greetings', 'introductions', 'polite', 'checkpoint'] } }, required: ['lesson'], additionalProperties: false },
+        annotations: { readOnlyHint: false, untrustedContentHint: false },
+        execute(input) {
+          if (!input || typeof input !== 'object' || Array.isArray(input) || !lessons[input.lesson] || Object.keys(input).some(key => key !== 'lesson')) throw new TypeError('Choose a valid lesson.');
+          const index = lessonOrder.indexOf(input.lesson);
+          const isOpen = input.lesson === 'greetings' || input.lesson === 'checkpoint' && lessonOrder.every(key => saved.completedLessons.includes(key)) || index > 0 && saved.completedLessons.includes(lessonOrder[index - 1]);
+          if (!isOpen) throw new Error('That lesson is still locked.');
+          startLesson(input.lesson);
+          return { lesson: lessons[input.lesson].title, question: 1, totalQuestions: currentQuestions.length };
+        }
+      });
+      document.modelContext.registerTool({
+        name: 'start_kannada_practice', title: 'Start Kannada practice', description: 'Start a mixed review using completed lessons.',
         inputSchema: { type: 'object', properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: false, untrustedContentHint: false },
         execute(input) {
-          if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) {
-            throw new TypeError('This tool does not accept any input fields.');
-          }
-          startLesson();
-          return { lesson: 'Greetings', question: 1, totalQuestions: questions.length };
+          if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) throw new TypeError('This tool does not accept any input fields.');
+          if (!saved.completedLessons.length) throw new Error('Complete a lesson before practising.');
+          buildPractice(); return { mode: 'practice', question: 1, totalQuestions: currentQuestions.length };
         }
       });
     }
